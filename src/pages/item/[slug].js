@@ -14,15 +14,16 @@ import {
   getAllDataByType,
   getDataByCategory,
 } from '../../lib/cosmic'
-import getStripe from '../../lib/getStripe'
+// import getStripe from '../../lib/getStripe'
 
 import styles from '../../styles/pages/Item.module.sass'
 
 const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
-  const { onAdd, cartItems, cosmicUser } = useStateContext()
-
+  
+  const { onAdd, cartItems, cosmicUser, totalPrice } = useStateContext()
   const [activeIndex, setActiveIndex] = useState(0)
   const [visibleAuthModal, setVisibleAuthModal] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   const counts = itemInfo?.[0]?.metadata?.count
     ? Array(itemInfo[0]?.metadata?.count)
@@ -46,26 +47,92 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
 
   const handleCheckout = async () => {
     const addCart = await onAdd(itemInfo[0], option)
-
+    
     if (addCart?.length) {
-      const stripe = await getStripe()
+    //   const stripe = await getStripe()
 
-      const response = await fetch('/api/stripe', {
+    //   const response = await fetch('/api/stripe', {
+    //     method: 'POST',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify(addCart),
+    //   })
+
+    //   if (response.statusCode === 500) return
+
+    //   const data = await response.json()
+    //   toast.loading('Redirecting...', {
+    //     position: 'bottom-right',
+    //   })
+
+    //   stripe.redirectToCheckout({ sessionId: data.id })
+
+      setLoading(true);
+
+      toast.success('Redirecting...', {
+        position: 'bottom-right',
+      })
+  
+    
+      const response = await fetch('/api/razorpay', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(addCart),
-      })
+        body: JSON.stringify({ amount:  itemInfo[0]?.metadata?.price}),
+      });
 
-      if (response.statusCode === 500) return
+      
+      if(response.status === 500) {
+        toast.error('Something went wrong! Please try again later', {
+          position: 'bottom-right',
+        });
+        return
+      };
+      
+      const data = await response.json();
 
-      const data = await response.json()
-      toast.loading('Redirecting...', {
-        position: 'bottom-right',
-      })
+      if (data.id) {
+        
+        try{
+          const options = {
+            key_id : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            amount: data.amount,
+            currency: data.currency,
+            name: 'ZELTAP',
+            description: 'Payment for products',
+            order_id: data.id,
+            image: 'https://your-logo-url.com',
+            // add a redirect logic to show order is received page to user
+            handler: function (response) {
+              // Can add a call to backend server to save these details on firebase db or cosmic
+              // alert(response.razorpay_payment_id);
+              // alert(response.razorpay_order_id);
+              // alert(response.razorpay_signature);
+            },
+            prefill: {
+              // need to fill in logged in user details here
+              name: 'Test',
+              email: 'your-email@zeltap.com',
+            },
+            notes: {
+              // Optional: Can be reomved
+              address: 'Zeltap Inc.'
+            }
+          };
+    
+          const rzp = new window.Razorpay(options);
+          rzp.open();
 
-      stripe.redirectToCheckout({ sessionId: data.id })
+        }catch(error){
+          toast.error('Error! Order cannot be placed! Please try again later', {
+            position: 'bottom-right',
+          })
+          console.log(error);
+        }
+        setLoading(false);
+    };
     }
   }
 
@@ -133,6 +200,7 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
                 <button
                   className={cn('button', styles.button)}
                   onClick={handleAddToCart}
+                  disabled={loading}
                 >
                   Buy Now
                 </button>
