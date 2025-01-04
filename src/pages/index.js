@@ -2,12 +2,6 @@ import { useEffect, useCallback } from 'react'
 import { useStateContext } from '../utils/context/StateContext'
 import Layout from '../components/Layout'
 import {
-  Intro,
-  Selection,
-  Partners,
-  HotBid,
-  Categories,
-  Discover,
   Description,
 } from '../screens/Home'
 import chooseBySlug from '../utils/chooseBySlug'
@@ -53,21 +47,7 @@ const Home = ({
   ])
 
   return (
-    <Layout navigationPaths={navigationItems[0]?.metadata}>
-      <Description info={chooseBySlug(landing, 'marketing')} />
-      <HotBid classSection="section" info={categoriesGroup['groups'][0]} />
-      <Categories
-        info={categoriesGroup['groups']}
-        type={categoriesGroup['type']}
-      />
-      <Selection info={categoriesGroup['groups']} type={categoryTypes} />
-      <Intro info={chooseBySlug(landing, 'introduction')} />
-      <Partners info={reviews} />
-      <Discover
-        info={categoriesGroup['groups']}
-        type={categoriesGroup['type']}
-      />
-    </Layout>
+    <Description info={chooseBySlug(landing, 'marketing')} />
   )
 }
 

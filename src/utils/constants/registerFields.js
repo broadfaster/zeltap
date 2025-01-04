@@ -1,4 +1,5 @@
 const registerFields = {
+  username: '',
   email: '',
   password: '',
 }

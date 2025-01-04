@@ -8,10 +8,15 @@ import styles from './Description.module.sass'
 const Description = ({ info }) => {
   const { push } = useRouter()
 
-  const handleClick = href => {
-    push(href)
-  }
-
+  const handleClick = (href, openInNewTab = false) => {
+    if (openInNewTab) {
+      if (typeof window !== 'undefined') {
+        window.open(href, '_blank');
+      }
+    } else {
+      push(href); // Navigate within the same tab using Next.js router
+    }
+  };
   return (
     <div className={styles.section}>
       <div className={cn('container', styles.container)}>
@@ -22,17 +27,17 @@ const Description = ({ info }) => {
           <div className={styles.btns}>
             <button
               aria-hidden="true"
-              onClick={() => handleClick(`/search`)}
+              onClick={() => handleClick(`/search`, true)}
               className={cn('button-stroke', styles.button)}
             >
-              Discover more
+              Shop Card
             </button>
             <button
               aria-hidden="true"
-              onClick={() => handleClick('/upload-details')}
+              onClick={() => handleClick('/signup')}
               className={cn('button', styles.button)}
             >
-              Create item
+              Create Your Digital Profile
             </button>
           </div>
         </div>

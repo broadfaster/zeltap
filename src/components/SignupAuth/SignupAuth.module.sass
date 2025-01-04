@@ -1,0 +1,61 @@
+@import ../../styles/helpers
+
+.title
+    margin-bottom: 32px
+
+.text
+    margin-bottom: 32px
+    +body-2
+    color: $neutrals4
+
+.error
+    margin-bottom: 3px
+    +body-bold-1
+    color: $blue
+
+.input
+    width: 100%
+    height: 48px
+    border-bottom: 1px solid $neutrals6
+    background: none
+    border-radius: 0
+    +poppins
+    +body-bold-2
+    color: $neutrals2
+    transform: border-color .2s
+    +dark
+        border-color: $neutrals3
+        color: $neutrals8
+    +placeholder
+        color: $neutrals4
+    &:focus
+        border-color: $neutrals4
+
+.btns
+    margin-top: 32px
+
+.button
+    width: 100%
+    &:not(:last-child)
+        margin-bottom: 8px
+
+
+.disabled 
+  background-color: grey
+  cursor: not-allowed
+
+.loading 
+  font-size: 12px
+  color: #888
+
+.nav
+  position: absolute
+  top: 20px
+  right: 20px
+
+.loginButton
+  font-size: 14px
+  color: #000
+  border: 1px solid #000
+  padding: 10px
+  cursor: pointer
