@@ -7,10 +7,19 @@ import registerFields from '../../utils/constants/registerFields'
 import { db, auth } from '../../utils/firebase'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { useStateContext } from '../../utils/context/StateContext'
+import { setToken } from '../../utils/token'
 
 import styles from './SignupAuth.module.sass'
 
-const SignupAuth = ({ className, disable }) => {
+const SignupAuth = ({
+  className,
+  handleClose,
+  handleOAuth,
+  disable,
+  setAuthMode,
+}) => {
+  const { setCosmicUser } = useStateContext()
   const { push } = useRouter()
 
   const [{ username, email, password }, setFields] = useState(
@@ -35,7 +44,7 @@ const SignupAuth = ({ className, disable }) => {
   }
 
   const handleChange = ({ target: { name, value } }) => {
-    setFields((prevFields) => ({
+    setFields(prevFields => ({
       ...prevFields,
       [name]: value,
     }))
@@ -44,7 +53,7 @@ const SignupAuth = ({ className, disable }) => {
     }
   }
 
-  const validateUsername = useCallback(async (username) => {
+  const validateUsername = useCallback(async username => {
     if (!username) {
       setIsUsernameValid(false)
       return
@@ -66,9 +75,9 @@ const SignupAuth = ({ className, disable }) => {
   }, [])
 
   const submitForm = useCallback(
-    async (e) => {
+    async e => {
       e.preventDefault()
-      setFillFiledMessage('')
+      fillFiledMessage?.length && setFillFiledMessage('')
       setLoading(true)
 
       if (username && email && password) {
@@ -90,9 +99,18 @@ const SignupAuth = ({ className, disable }) => {
             uid: user.uid, // Optional: Store Firebase UID for reference
           })
 
-          setFillFiledMessage('Account created successfully!')
-          setFields(registerFields)
-
+          if (auth.currentUser) {
+            setCosmicUser(user)
+            setToken({
+              uid: user.uid,
+              email: user.email,
+              avatar_url: '',
+            })
+            setFillFiledMessage('Account created successfully!')
+            setFields(registerFields)
+            handleOAuth(user)
+            handleClose()
+          }
           // Redirect to user profile page
           push(`/${username}`)
         } catch (error) {
@@ -120,22 +138,7 @@ const SignupAuth = ({ className, disable }) => {
 
   return (
     <div className={cn(className, styles.transfer)}>
-      {/* Login Button at Top-Right */}
-      <div className={styles.nav}>
-        <button
-          className={cn('button-stroke', styles.loginButton)}
-          onClick={() => push('/login')}
-        >
-          Login
-        </button>
-      </div>
-
-      <div className={cn('h4', styles.title)}>
-        Create your digital profile with{' '}
-        <AppLink target="_blank" href="https://www.zeltap.com">
-          Zeltap
-        </AppLink>
-      </div>
+      <div className={cn('h4', styles.title)}>Signup</div>
       <div className={styles.text}>
         Register an account at{' '}
         <AppLink target="_blank" href="https://www.zeltap.com">
@@ -200,6 +203,15 @@ const SignupAuth = ({ className, disable }) => {
           </button>
         </div>
       </form>
+      <div className={styles.toggle}>
+        <p className={cn(styles.para)}>Login to an existing account?</p>
+        <button
+          onClick={() => setAuthMode('login')}
+          className={cn(styles.link)}
+        >
+          click here
+        </button>
+      </div>
     </div>
   )
 }

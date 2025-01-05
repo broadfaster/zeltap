@@ -38,3 +38,36 @@
     width: 100%
     &:not(:last-child)
         margin-bottom: 8px
+
+.link
+    margin: 0 6px
+    padding: 6px 12px
+    border-radius: 14px
+    background: none
+    +button-2
+    color: blue
+    transition: all .2s
+    &:hover
+        color: $neutrals3
+        +dark
+            color: $neutrals6
+    &.active
+        background: $neutrals3
+        color: $neutrals8
+        +dark
+            background: $neutrals8
+            color: $neutrals2
+    &:nth-child(n+5)
+        +d
+            display: none
+
+.toggle
+    margin-top: 20px
+    display: flex
+    flex-direction: column
+    align-item: center
+    justify-content: center
+
+.para 
+    text-align: center
+    

@@ -11,12 +11,12 @@ const Description = ({ info }) => {
   const handleClick = (href, openInNewTab = false) => {
     if (openInNewTab) {
       if (typeof window !== 'undefined') {
-        window.open(href, '_blank');
+        window.open(href, '_blank')
       }
     } else {
-      push(href); // Navigate within the same tab using Next.js router
+      push(href) // Navigate within the same tab using Next.js router
     }
-  };
+  }
   return (
     <div className={styles.section}>
       <div className={cn('container', styles.container)}>
@@ -32,13 +32,13 @@ const Description = ({ info }) => {
             >
               Shop Card
             </button>
-            <button
+            {/* <button
               aria-hidden="true"
               onClick={() => handleClick('/signup')}
               className={cn('button', styles.button)}
             >
               Create Your Digital Profile
-            </button>
+            </button> */}
           </div>
         </div>
         <div className={styles.gallery}>

@@ -11,17 +11,19 @@ import { useStateContext } from '../../utils/context/StateContext'
 import { getToken } from '../../utils/token'
 
 import styles from './Header.module.sass'
+import SignupAuth from '../SignupAuth'
+import LoginAuth from '../LoginAuth'
 
 const Headers = ({ navigation }) => {
   const [visibleNav, setVisibleNav] = useState(false)
   const [visibleAuthModal, setVisibleAuthModal] = useState(false)
-
   const { cosmicUser, setCosmicUser } = useStateContext()
+  const [authMode, setAuthMode] = useState('login')
 
   const handleOAuth = useCallback(
     user => {
-      !cosmicUser.hasOwnProperty('id') &&
-        user?.hasOwnProperty('id') &&
+      !cosmicUser.hasOwnProperty('uid') &&
+        user?.hasOwnProperty('uid') &&
         setCosmicUser(user)
     },
     [cosmicUser, setCosmicUser]
@@ -29,14 +31,14 @@ const Headers = ({ navigation }) => {
 
   useEffect(() => {
     let isMounted = true
-    const uNFTUser = getToken()
+    const ZeltapUser = getToken()
 
     if (
       isMounted &&
-      !cosmicUser?.hasOwnProperty('id') &&
-      uNFTUser?.hasOwnProperty('id')
+      !cosmicUser?.hasOwnProperty('uid') &&
+      ZeltapUser?.hasOwnProperty('uid')
     ) {
-      setCosmicUser(uNFTUser)
+      setCosmicUser(ZeltapUser)
     }
 
     return () => {
@@ -52,7 +54,7 @@ const Headers = ({ navigation }) => {
             <Image
               width={256}
               height={120}
-              objectFit='contain'
+              objectFit="contain"
               className={styles.pic}
               src={navigation['logo']?.imgix_url}
               alt="Logo"
@@ -73,19 +75,23 @@ const Headers = ({ navigation }) => {
               ))}
             </nav>
           </div>
-          <div className={styles.version}>
+          {/* Not Required to have in header mentioned in footer already */}
+          {/* <div className={styles.version}>
             <Theme className="theme-big" />
-          </div>
-          <AppLink
-            aria-label="search"
-            aria-hidden="true"
-            className={cn('button-small', styles.button)}
-            href={`/search`}
-          >
-            <Icon name="search" size="20" />
-            Search
-          </AppLink>
-          {cosmicUser?.['id'] ? (
+          </div> */}
+
+          {cosmicUser?.['uid'] && (
+            <AppLink
+              aria-label="search"
+              aria-hidden="true"
+              className={cn('button-small', styles.button)}
+              href={`/search`}
+            >
+              <Icon name="search" size="20" />
+              Search
+            </AppLink>
+          )}
+          {cosmicUser?.['uid'] ? (
             <User className={styles.user} user={cosmicUser} />
           ) : (
             <button
@@ -109,11 +115,21 @@ const Headers = ({ navigation }) => {
         visible={visibleAuthModal}
         onClose={() => setVisibleAuthModal(false)}
       >
-        <OAuth
-          className={styles.steps}
-          handleOAuth={handleOAuth}
-          handleClose={() => setVisibleAuthModal(false)}
-        />
+        {authMode === 'login' ? (
+          <LoginAuth
+            className={styles.steps}
+            handleOAuth={handleOAuth}
+            handleClose={() => setVisibleAuthModal(false)}
+            setAuthMode={setAuthMode}
+          />
+        ) : (
+          <SignupAuth
+            className={styles.steps}
+            handleOAuth={handleOAuth}
+            handleClose={() => setVisibleAuthModal(false)}
+            setAuthMode={setAuthMode}
+          />
+        )}
       </Modal>
     </>
   )

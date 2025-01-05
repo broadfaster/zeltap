@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import { useRouter } from 'next/router'
 import AppLink from '../AppLink'
@@ -6,18 +6,33 @@ import Loader from '../Loader'
 import { db, auth } from '../../utils/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { collection, query, where, getDocs } from 'firebase/firestore'
+import { useStateContext } from '../../utils/context/StateContext'
+import { setToken } from '../../utils/token'
+import loginFields from '../../utils/constants/loginFields'
 
 import styles from './LoginAuth.module.sass'
 
-const LoginAuth = ({ className, disable }) => {
+const LoginAuth = ({
+  className,
+  handleClose,
+  handleOAuth,
+  disable,
+  setAuthMode,
+}) => {
+  const { setCosmicUser } = useStateContext()
   const { push } = useRouter()
 
-  const [{ email, password }, setFields] = useState({
-    email: '',
-    password: '',
-  })
+  const [{ email, password }, setFields] = useState(() => loginFields)
   const [fillFiledMessage, setFillFiledMessage] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const inputElement = useRef(null)
+
+  useEffect(() => {
+    if (inputElement.current) {
+      inputElement.current.focus()
+    }
+  }, [disable])
 
   const handleGoHome = () => {
     push('/')
@@ -33,7 +48,7 @@ const LoginAuth = ({ className, disable }) => {
   const submitForm = useCallback(
     async e => {
       e.preventDefault()
-      setFillFiledMessage('')
+      fillFiledMessage?.length && setFillFiledMessage('')
       setLoading(true)
 
       if (email && password) {
@@ -55,8 +70,21 @@ const LoginAuth = ({ className, disable }) => {
             const userData = querySnapshot.docs[0].data()
             const username = querySnapshot.docs[0].id // Document ID is the username
 
+            if (auth.currentUser) {
+              setCosmicUser(user)
+              setToken({
+                uid: user.uid,
+                email: user.email,
+                avatar_url: '',
+              })
+              setFillFiledMessage('Account LoggedIn successfully!')
+              setFields(loginFields)
+              handleOAuth(user)
+              push(`/${username}`)
+              handleClose()
+            }
+
             // User found in Firestore, redirect to the profile
-            push(`/${username}`)
           } else {
             setFillFiledMessage('User not found in the system.')
           }
@@ -67,7 +95,6 @@ const LoginAuth = ({ className, disable }) => {
       } else {
         setFillFiledMessage('Please fill all fields.')
       }
-
       setLoading(false)
     },
     [email, password, push]
@@ -75,14 +102,9 @@ const LoginAuth = ({ className, disable }) => {
 
   return (
     <div className={cn(className, styles.transfer)}>
-      <div className={cn('h4', styles.title)}>
-        Login to your digital profile with{' '}
-        <AppLink target="_blank" href="https://www.zeltap.com">
-          Zeltap
-        </AppLink>
-      </div>
+      <div className={cn('h4', styles.title)}>Login</div>
       <div className={styles.text}>
-        Sign in to your account at{' '}
+        Login to your account at{' '}
         <AppLink target="_blank" href="https://www.zeltap.com">
           Zeltap
         </AppLink>
@@ -129,6 +151,15 @@ const LoginAuth = ({ className, disable }) => {
           </button>
         </div>
       </form>
+      <div className={styles.toggle}>
+        <p className={cn(styles.para)}>Create an account?</p>
+        <button
+          onClick={() => setAuthMode('register')}
+          className={cn(styles.link)}
+        >
+          click here
+        </button>
+      </div>
     </div>
   )
 }
