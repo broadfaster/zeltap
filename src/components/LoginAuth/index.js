@@ -19,7 +19,7 @@ const LoginAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { setCosmicUser } = useStateContext()
+  const { setUsername, setCosmicUser } = useStateContext()
   const { push } = useRouter()
 
   const [{ email, password }, setFields] = useState(() => loginFields)
@@ -72,6 +72,7 @@ const LoginAuth = ({
 
             if (auth.currentUser) {
               setCosmicUser(user)
+              setUsername(username)
               setToken({
                 uid: user.uid,
                 email: user.email,

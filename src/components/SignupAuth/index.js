@@ -19,7 +19,7 @@ const SignupAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { setCosmicUser } = useStateContext()
+  const { setUsername, setCosmicUser } = useStateContext()
   const { push } = useRouter()
 
   const [{ username, email, password }, setFields] = useState(
@@ -101,6 +101,7 @@ const SignupAuth = ({
 
           if (auth.currentUser) {
             setCosmicUser(user)
+            setUsername(username)
             setToken({
               uid: user.uid,
               email: user.email,
