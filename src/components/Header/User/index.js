@@ -10,7 +10,7 @@ import { removeToken } from '../../../utils/token'
 import { useStateContext } from '../../../utils/context/StateContext'
 
 const User = ({ className, user }) => {
-  const { username, setUsername, setCosmicUser } = useStateContext()
+  const { setCosmicUser } = useStateContext()
   const [visible, setVisible] = useState(false)
   const { push } = useRouter()
 
@@ -19,7 +19,7 @@ const User = ({ className, user }) => {
       title: 'Profile',
       icon: 'user',
       callback: () => {
-        push(`/${username}`)
+        push(`/${user.username}`)
       },
     },
     {
@@ -27,7 +27,6 @@ const User = ({ className, user }) => {
       icon: 'exit',
       callback: () => {
         setCosmicUser({})
-        setUsername(null)
         push('/')
         removeToken()
       },

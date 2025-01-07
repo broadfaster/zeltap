@@ -19,7 +19,7 @@ const LoginAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { setUsername, setCosmicUser } = useStateContext()
+  const { setCosmicUser } = useStateContext()
   const { push } = useRouter()
 
   const [{ email, password }, setFields] = useState(() => loginFields)
@@ -71,12 +71,15 @@ const LoginAuth = ({
             const username = querySnapshot.docs[0].id // Document ID is the username
 
             if (auth.currentUser) {
-              setCosmicUser(user)
-              setUsername(username)
+              setCosmicUser({
+                uid: user.uid,
+                username: username,
+                email: user.email,
+              })
               setToken({
                 uid: user.uid,
+                username: username,
                 email: user.email,
-                avatar_url: '',
               })
               setFillFiledMessage('Account LoggedIn successfully!')
               setFields(loginFields)

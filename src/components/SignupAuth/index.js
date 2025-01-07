@@ -19,7 +19,7 @@ const SignupAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { setUsername, setCosmicUser } = useStateContext()
+  const { setCosmicUser } = useStateContext()
   const { push } = useRouter()
 
   const [{ username, email, password }, setFields] = useState(
@@ -49,6 +49,7 @@ const SignupAuth = ({
       [name]: value,
     }))
     if (name === 'username') {
+      // TODO: Use Debounce Login
       validateUsername(value)
     }
   }
@@ -100,12 +101,15 @@ const SignupAuth = ({
           })
 
           if (auth.currentUser) {
-            setCosmicUser(user)
-            setUsername(username)
+            setCosmicUser({
+              uid: user.uid,
+              username: username,
+              email: user.email,
+            })
             setToken({
               uid: user.uid,
+              username: username,
               email: user.email,
-              avatar_url: '',
             })
             setFillFiledMessage('Account created successfully!')
             setFields(registerFields)
@@ -117,12 +121,11 @@ const SignupAuth = ({
         } catch (error) {
           if (error.code === 'auth/email-already-in-use') {
             // If email is already in use, redirect to login page
-            setFillFiledMessage(
-              'Email is already in use. Redirecting to login...'
-            )
-            setTimeout(() => {
-              push('/login') // Redirect to /login after a short delay
-            }, 2000)
+            setFillFiledMessage('Email is already in use. Please try login')
+            // TODO:
+            // setTimeout(() => {
+            //   push('/login') // Redirect to /login after a short delay
+            // }, 2000)
           } else {
             console.error('Error creating user:', error)
             setFillFiledMessage(error.message || 'Failed to create account.')
