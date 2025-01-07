@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import cn from 'classnames'
 import { useRouter } from 'next/router'
+import toast from 'react-hot-toast'
 import { useStateContext } from '../utils/context/StateContext'
 import useDebounce from '../utils/hooks/useDebounce'
 import useFetchData from '../utils/hooks/useFetchData'
@@ -12,7 +13,7 @@ import Card from '../components/Card'
 import Dropdown from '../components/Dropdown'
 import priceRange from '../utils/constants/priceRange'
 import handleQueryParams from '../utils/queryParams'
-import { OPTIONS } from '../utils/constants/appConstants'
+import { PROFESSION_OPTIONS, OPTIONS, CARD_MATERIAL_OPTIONS } from '../utils/constants/appConstants'
 
 import styles from '../styles/pages/Search.module.sass'
 import { PageMeta } from '../components/Meta'
@@ -43,6 +44,11 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
   )
   const [option, setOption] = useState(query['color'] || OPTIONS[0])
 
+  const [professionOption, setProfessionOption] = useState(query['profession'] || PROFESSION_OPTIONS[0])
+
+  const [cardMaterialOption, setCardMaterialOption] = useState(query['cardMaterial'] || CARD_MATERIAL_OPTIONS[0])
+
+
   const handleChange = ({ target: { name, value } }) => {
     setRangeValues(prevFields => ({
       ...prevFields,
@@ -57,6 +63,8 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
       min = debouncedMinTerm,
       max = debouncedMaxTerm,
       search = debouncedSearchTerm,
+      profession = professionOption,
+      cardMaterial = cardMaterialOption,
     }) => {
       const params = handleQueryParams({
         category,
@@ -64,6 +72,8 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
         min: min.trim(),
         max: max.trim(),
         search: search.toLowerCase().trim(),
+        profession,
+        cardMaterial,
       })
 
       push(
@@ -80,7 +90,18 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
         ''
       )
 
-      await fetchData(`/api/filter?${filterParam}`)
+      const result = await fetchData(`/api/filter?${filterParam}`)
+
+      if(result?.status === 404){
+
+        toast.dismiss();
+
+        toast.error('Oops! This combination is currently not available', {
+          position: 'center-middle',
+        });
+
+      }
+
     },
     [
       activeIndex,
@@ -90,6 +111,8 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
       fetchData,
       option,
       push,
+      professionOption,
+      cardMaterialOption,
     ]
   )
 
@@ -100,6 +123,23 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
     },
     [handleFilterDataByParams]
   )
+
+  const getDataByFilterProfessionOptions = useCallback(
+    async profession => {
+      setProfessionOption(profession)
+      handleFilterDataByParams({ profession })
+    },
+    [handleFilterDataByParams]
+  )
+
+  const getDataByFilterCardMaterialOptions = useCallback(
+    async cardMaterial => {
+      setCardMaterialOption(cardMaterial)
+      handleFilterDataByParams({ cardMaterial })
+    },
+    [handleFilterDataByParams]
+  )
+
 
   const handleCategoryChange = useCallback(
     async category => {
@@ -142,9 +182,9 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
   return (
     <Layout navigationPaths={navigationItems[0]?.metadata}>
       <PageMeta
-        title={'Discover | uNFT Marketplace'}
+        title={'Discover | Zeltap Marketplace'}
         description={
-          'uNFT Marketplace built with Cosmic CMS, Next.js, and the Stripe API'
+          'Zeltap Marketplace'
         }
       />
       <div className={cn('section-pt80', styles.section)}>
@@ -155,7 +195,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
                 <div className={styles.title}>Search</div>
               </div>
               <div className={styles.form}>
-                <div className={styles.label}>Search keyword</div>
+                <div className={styles.label}>Search Cards</div>
                 <form
                   className={styles.search}
                   action=""
@@ -177,6 +217,28 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
               </div>
               <div className={styles.sorting}>
                 <div className={styles.dropdown}>
+                  <div className={styles.label}>Card Material</div>
+                  <Dropdown
+                    className={styles.dropdown}
+                    value={cardMaterialOption}
+                    setValue={getDataByFilterCardMaterialOptions}
+                    options={CARD_MATERIAL_OPTIONS}
+                  />
+                </div>
+              </div>
+              <div className={styles.sorting}>
+                <div className={styles.dropdown}>
+                  <div className={styles.label}>Select Profession</div>
+                  <Dropdown
+                    className={styles.dropdown}
+                    value={professionOption}
+                    setValue={getDataByFilterProfessionOptions}
+                    options={PROFESSION_OPTIONS}
+                  />
+                </div>
+              </div>
+              <div className={styles.sorting}>
+                <div className={styles.dropdown}>
                   <div className={styles.label}>Select color</div>
                   <Dropdown
                     className={styles.dropdown}
@@ -186,7 +248,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
                   />
                 </div>
               </div>
-              <div className={styles.range}>
+              {/* <div className={styles.range}>
                 <div className={styles.label}>Price range</div>
                 <div className={styles.prices}>
                   <input
@@ -209,7 +271,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
                     required
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
             <div className={styles.wrapper}>
               <div className={styles.nav}>

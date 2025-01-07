@@ -33,14 +33,14 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
   const [option, setOption] = useState(counts[0])
 
   const handleAddToCart = () => {
-    cosmicUser?.hasOwnProperty('id') ? handleCheckout() : handleOAuth()
+    cosmicUser?.hasOwnProperty('uid') ? handleCheckout() : handleOAuth()
   }
 
   const handleOAuth = useCallback(
     async user => {
-      !cosmicUser.hasOwnProperty('id') && setVisibleAuthModal(true)
+      !cosmicUser.hasOwnProperty('uid') && setVisibleAuthModal(true)
 
-      if (!user && !user?.hasOwnProperty('id')) return
+      if (!user && !user?.hasOwnProperty('uid')) return
     },
     [cosmicUser]
   )
@@ -80,7 +80,7 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ amount:  itemInfo[0]?.metadata?.price}),
+        body: JSON.stringify({ amount:  itemInfo[0]?.metadata?.price * option}),
       });
 
       
