@@ -15,15 +15,17 @@ import {
   getDataByCategory,
 } from '../../lib/cosmic'
 // import getStripe from '../../lib/getStripe'
+import SignupAuth from '../../components/SignupAuth'
+import LoginAuth from '../../components/LoginAuth'
 
 import styles from '../../styles/pages/Item.module.sass'
 
 const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
-  
   const { onAdd, cartItems, cosmicUser, totalPrice } = useStateContext()
   const [activeIndex, setActiveIndex] = useState(0)
   const [visibleAuthModal, setVisibleAuthModal] = useState(false)
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const [authMode, setAuthMode] = useState('login')
 
   const counts = itemInfo?.[0]?.metadata?.count
     ? Array(itemInfo[0]?.metadata?.count)
@@ -47,57 +49,54 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
 
   const handleCheckout = async () => {
     const addCart = await onAdd(itemInfo[0], option)
-    
+
     if (addCart?.length) {
-    //   const stripe = await getStripe()
+      //   const stripe = await getStripe()
 
-    //   const response = await fetch('/api/stripe', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify(addCart),
-    //   })
+      //   const response = await fetch('/api/stripe', {
+      //     method: 'POST',
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //     body: JSON.stringify(addCart),
+      //   })
 
-    //   if (response.statusCode === 500) return
+      //   if (response.statusCode === 500) return
 
-    //   const data = await response.json()
-    //   toast.loading('Redirecting...', {
-    //     position: 'bottom-right',
-    //   })
+      //   const data = await response.json()
+      //   toast.loading('Redirecting...', {
+      //     position: 'bottom-right',
+      //   })
 
-    //   stripe.redirectToCheckout({ sessionId: data.id })
+      //   stripe.redirectToCheckout({ sessionId: data.id })
 
-      setLoading(true);
+      setLoading(true)
 
       toast.success('Redirecting...', {
         position: 'bottom-right',
       })
-  
-    
+
       const response = await fetch('/api/razorpay', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ amount:  itemInfo[0]?.metadata?.price * option}),
-      });
+        body: JSON.stringify({ amount: itemInfo[0]?.metadata?.price * option }),
+      })
 
-      
-      if(response.status === 500) {
+      if (response.status === 500) {
         toast.error('Something went wrong! Please try again later', {
           position: 'bottom-right',
-        });
+        })
         return
-      };
-      
-      const data = await response.json();
+      }
+
+      const data = await response.json()
 
       if (data.id) {
-        
-        try{
+        try {
           const options = {
-            key_id : process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
             amount: data.amount,
             currency: data.currency,
             name: 'ZELTAP',
@@ -118,21 +117,20 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
             },
             notes: {
               // Optional: Can be reomved
-              address: 'Zeltap Inc.'
-            }
-          };
-    
-          const rzp = new window.Razorpay(options);
-          rzp.open();
+              address: 'Zeltap Inc.',
+            },
+          }
 
-        }catch(error){
+          const rzp = new window.Razorpay(options)
+          rzp.open()
+        } catch (error) {
           toast.error('Error! Order cannot be placed! Please try again later', {
             position: 'bottom-right',
           })
-          console.log(error);
+          console.log(error)
         }
-        setLoading(false);
-    };
+        setLoading(false)
+      }
     }
   }
 
@@ -218,11 +216,21 @@ const Item = ({ itemInfo, categoriesGroup, navigationItems }) => {
         visible={visibleAuthModal}
         onClose={() => setVisibleAuthModal(false)}
       >
-        <OAuth
-          className={styles.steps}
-          handleOAuth={handleOAuth}
-          handleClose={() => setVisibleAuthModal(false)}
-        />
+        {authMode === 'login' ? (
+          <LoginAuth
+            className={styles.steps}
+            handleOAuth={handleOAuth}
+            handleClose={() => setVisibleAuthModal(false)}
+            setAuthMode={setAuthMode}
+          />
+        ) : (
+          <SignupAuth
+            className={styles.steps}
+            handleOAuth={handleOAuth}
+            handleClose={() => setVisibleAuthModal(false)}
+            setAuthMode={setAuthMode}
+          />
+        )}
       </Modal>
     </Layout>
   )

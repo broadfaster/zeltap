@@ -5,6 +5,8 @@ import { ThemeProvider } from 'styled-components'
 import { darkTheme, lightTheme } from '../styles/theme.config'
 import useDarkMode from 'use-dark-mode'
 import GlobalStyle from '../styles/GlobalStyle'
+import allLinks from '../data/LinksData'
+import bioData from '../data/BioData'
 
 const UserProfile = () => {
   const darkMode = useDarkMode(false, { storageKey: null, onChange: null })
@@ -15,7 +17,7 @@ const UserProfile = () => {
       <ThemeProvider theme={theme}>
         <GlobalStyle />
         <UserLayout>
-          <WebLinks />
+          <WebLinks allLinks={allLinks} bioData={bioData} />
         </UserLayout>
       </ThemeProvider>
     </>

@@ -5,7 +5,7 @@ const bioData = [
     username: 'iakshatkumar',
     url: 'https://zeltap.com/iakshatkumar',
     titleImg: false,
-    avatar: '/avatar.png',
+    avatar: '/images/content/avatar.png',
     nftAvatar: true,
     description: 'Software Engineer by Choice',
     descShow: true,
@@ -13,9 +13,9 @@ const bioData = [
     subdescShow: true,
     newProductUrl: 'https://3dicons.co',
     newProduct: true,
-    author: 'realvjy',
-    authorURL: 'https://twitter.com/realvjy',
-    footerText: 'made by',
+    author: 'zeltap',
+    authorURL: 'https://zeltap.com',
+    footerText: 'curated by',
   },
 ]
 
