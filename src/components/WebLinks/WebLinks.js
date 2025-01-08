@@ -3,22 +3,22 @@ import { HexIcon, NewUp, OvalIcon } from '../icons'
 
 const Links = ({ allLinks, bioData }) => {
   // all user info from bioData
-  const name = bioData[0].name
-  const url = bioData[0].url
-  const username = bioData[0].username
-  const titleImg = bioData[0].titleImg
-  const avatarImg = bioData[0].avatar
-  const description = bioData[0].description
-  const descShow = bioData[0].descShow
-  const subdesc = bioData[0].subdesc
-  const subdescShow = bioData[0].subdescShow
-  const footerText = bioData[0].footerText
-  const author = bioData[0].author
-  const authorURL = bioData[0].authorURL
+  const name = bioData?.name
+  const url = bioData?.url
+  const username = bioData?.username
+  const titleImg = bioData?.titleImg
+  const avatarImg = bioData?.avatar
+  const description = bioData?.description
+  const descShow = bioData?.descShow
+  const subdesc = bioData?.subdesc
+  const subdescShow = bioData?.subdescShow
+  const footerText = bioData?.footerText
+  const author = bioData?.author
+  const authorURL = bioData?.authorURL
   const titleImage = '/title.svg'
 
   // Check what class to use oval or hex for avatar
-  const avatarShape = bioData[0].nftAvatar ? `nft-clipped` : `oval-clipped`
+  const avatarShape = bioData?.nftAvatar ? `nft-clipped` : `oval-clipped`
 
   // Description and subdescription goes here
   const descriptionText = descShow
@@ -28,8 +28,8 @@ const Links = ({ allLinks, bioData }) => {
     ? subdesc
     : `Write your own if you want or just remove me/leave blank`
 
-  const newProduct = bioData[0].newProduct // checking for newProduct flag true false
-  const newProductUrl = bioData[0].newProductUrl // get product url if available
+  const newProduct = bioData?.newProduct // checking for newProduct flag true false
+  const newProductUrl = bioData?.newProductUrl // get product url if available
 
   // Collect all links filter by type - social, project, nft and other etc=
   // get data for social section
@@ -118,7 +118,7 @@ const Links = ({ allLinks, bioData }) => {
             {/* Other Section */}
             {others.length > 0 ? (
               <LinkSection>
-                <h3>{others[0].type}</h3>
+                <h3>{others?.type}</h3>
                 {/* BioData.js > newProduct == true */}
                 {/* New Section will render once newProduct == true */}
                 {newProduct ? (
@@ -156,7 +156,7 @@ const Links = ({ allLinks, bioData }) => {
             {/* Install Section */}
             {install.length > 0 ? (
               <LinkSection>
-                <h3>{install[0].type}</h3>
+                <h3>{install?.type}</h3>
                 {install.map(i => {
                   return (
                     <a
@@ -184,7 +184,7 @@ const Links = ({ allLinks, bioData }) => {
             {/* NFT Section */}
             {nfts.length > 0 ? (
               <LinkSection>
-                <h3>{nfts[0].type}s</h3>
+                <h3>{nfts?.type}s</h3>
                 {nfts.map(i => {
                   return (
                     <a
