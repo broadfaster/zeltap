@@ -6,6 +6,7 @@ import { useStateContext } from '../utils/context/StateContext'
 import useDebounce from '../utils/hooks/useDebounce'
 import useFetchData from '../utils/hooks/useFetchData'
 import { getAllDataByType, getDataByCategory } from '../lib/cosmic'
+import { ClipLoader } from 'react-spinners';
 
 import Layout from '../components/Layout'
 import Icon from '../components/Icon'
@@ -25,6 +26,24 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
   const { data: searchResult, fetchData } = useFetchData(
     categoryData?.length ? categoryData : []
   )
+
+  const [searchResultValue, setSearchResultValue] = useState([]); 
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+
+    if (searchResult && searchResult.length > 0) {
+      setSearchResultValue(searchResult);
+    } else if (searchResult && searchResult.length === 0) {
+      setSearchResultValue([]);
+    }
+
+    return () => clearTimeout(timer);
+  }, [searchResult]);
 
   const categoriesTypeData = categoriesGroup['type'] || categories['type']
 
@@ -93,13 +112,16 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
       const result = await fetchData(`/api/filter?${filterParam}`)
 
       if(result?.status === 404){
-
+        setSearchResultValue([])
         toast.dismiss();
 
         toast.error('Oops! This combination is currently not available', {
           position: 'center-middle',
         });
 
+
+      }else if(result?.status === 200){
+        toast.dismiss();
       }
 
     },
@@ -140,7 +162,6 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
     [handleFilterDataByParams]
   )
 
-
   const handleCategoryChange = useCallback(
     async category => {
       setActiveIndex(category)
@@ -152,6 +173,27 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
   const handleSubmit = e => {
     e.preventDefault()
     handleFilterDataByParams({ search: debouncedSearchTerm })
+  }
+
+  const resetFilter = () =>{
+
+    setSearch('')
+    setRangeValues({ min: '', max: '' })
+    setActiveIndex('')
+    setOption(OPTIONS[0])
+    setProfessionOption(PROFESSION_OPTIONS[0])
+    setCardMaterialOption(CARD_MATERIAL_OPTIONS[0])
+
+    handleFilterDataByParams({
+      category: '',
+      color: OPTIONS[0],
+      min: debouncedMinTerm,
+      max: debouncedMaxTerm,
+      search: '',
+      profession: PROFESSION_OPTIONS[0],
+      cardMaterial: CARD_MATERIAL_OPTIONS[0],
+    })
+
   }
 
   useEffect(() => {
@@ -272,6 +314,15 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
                   />
                 </div>
               </div> */}
+              <div className={styles.sorting}>
+                <div className={styles.dropdown}>
+                  <button 
+                  className={cn('button-small', styles.button)}
+                  onClick={resetFilter}>
+                    <span>Reset</span>
+                  </button>
+                </div>
+              </div>
             </div>
             <div className={styles.wrapper}>
               <div className={styles.nav}>
@@ -296,14 +347,21 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
                     </button>
                   ))}
               </div>
-              <div className={styles.list}>
-                {searchResult?.length ? (
-                  searchResult?.map((x, index) => (
-                    <Card className={styles.card} item={x} key={index} />
-                  ))
-                ) : (
-                  <p className={styles.inform}>Try another category!</p>
-                )}
+              <div>
+                {loading ? (
+                  <div className={styles.loader}>
+                    <ClipLoader size={50} color="#36D7B7" loading={loading} />
+                  </div>
+                  ) : (
+                    <div className={styles.list}>
+                      {searchResultValue?.length ? (
+                        searchResultValue?.map((x, index) => (
+                          <Card className={styles.card} item={x} key={index} />
+                        ))
+                      ) : (
+                        <p className={styles.inform}>Try another category!</p>
+                      )}
+                    </div>)}
               </div>
             </div>
           </div>

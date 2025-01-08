@@ -170,7 +170,7 @@ const Discover = ({ info, type }) => {
                 </button>
               ))}
           </div>
-          <button
+          {/* <button
             className={cn(styles.filter, { [styles.active]: visible })}
             onClick={() => setVisible(!visible)}
           >
@@ -179,9 +179,9 @@ const Discover = ({ info, type }) => {
               <Icon name="filter" size="18" />
               <Icon name="close" size="10" />
             </div>
-          </button>
+          </button> */}
         </div>
-        <div className={cn(styles.filters, { [styles.active]: visible })}>
+        {/* <div className={cn(styles.filters, { [styles.active]: visible })}>
           <div className={styles.sorting}>
             <div className={styles.cell}>
               <div className={styles.label}>Price range</div>
@@ -208,7 +208,7 @@ const Discover = ({ info, type }) => {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
         <div className={styles.list}>
           <Slider
             aria-hidden="true"

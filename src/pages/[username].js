@@ -12,6 +12,8 @@ const UserProfile = () => {
   const darkMode = useDarkMode(false, { storageKey: null, onChange: null })
   const theme = darkMode.value ? darkTheme : lightTheme
 
+  // TODO: Add loading spinner
+
   return (
     <>
       <ThemeProvider theme={theme}>
