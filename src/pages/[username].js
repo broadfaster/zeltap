@@ -13,10 +13,10 @@ import {db} from '../utils/firebase'
 
 export async function getServerSideProps(context) {
   try {
-    const { username } = context.params;
+    const { username } = context.params
     
-    const userDocRef = doc(db, 'users', username); 
-    const userDocSnap = await getDoc(userDocRef);
+    const userDocRef = doc(db, 'users', username)
+    const userDocSnap = await getDoc(userDocRef)
 
     if (!userDocSnap.exists()) {
       return {
@@ -26,10 +26,10 @@ export async function getServerSideProps(context) {
       };
     }
 
-    const userData = userDocSnap.data();
+    const userData = userDocSnap.data()
 
     if (userData.createdAt instanceof Timestamp) {
-      userData.createdAt = userData.createdAt.toDate().toString(); 
+      userData.createdAt = userData.createdAt.toDate().toString()
     }
 
     return {
@@ -38,15 +38,15 @@ export async function getServerSideProps(context) {
           userData, 
         },
       },
-    };
+    }
 
   } catch (error) {
-    console.error('Error fetching data from Firestore:', error);
+    console.error('Error fetching data from Firestore:', error)
     return {
       props: {
         firestoreData: null,
       },
-    };
+    }
   }
 }
 
@@ -56,9 +56,9 @@ const UserProfile = ({firestoreData}) => {
 
   if (firestoreData === false) {
     // TODO: Add not found page here
-    return <div>Data not found</div>;
+    return <div>User not found</div>
   }else if(firestoreData === null){
-    return <div>Error in fetching data try agina later</div>;
+    return <div>Error in fetching data try agina later</div>
   }
 
   const bio = firestoreData?.userData?.bio || bioData
