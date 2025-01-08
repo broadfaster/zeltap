@@ -7,7 +7,7 @@ const cosmic = createBucketClient({
 
 export default async function filterHandler(req, res) {
   const {
-    query: { min, max, color, category, search, profession, cardMaterial },
+    query: { min, max, color, category, search, profession, material },
   } = req
 
   let queryParam = {}
@@ -50,11 +50,11 @@ export default async function filterHandler(req, res) {
   }
 
   if (
-    typeof cardMaterial !== 'undefined' &&
-    cardMaterial !== 'undefined' &&
-    cardMaterial?.toLocaleLowerCase() !== 'any card'
+    typeof material !== 'undefined' &&
+    material !== 'undefined' &&
+    material?.toLocaleLowerCase() !== 'any material'
   ) {
-    queryParam = { ...queryParam, 'metadata.card_material': cardMaterial }
+    queryParam = { ...queryParam, 'metadata.material': material }
   }
 
   try {

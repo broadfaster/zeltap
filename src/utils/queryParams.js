@@ -1,4 +1,4 @@
-const handleQueryParams = ({ color, min, max, category, search, profession, cardMaterial }) => {
+const handleQueryParams = ({ color, min, max, category, search, profession, material }) => {
   let queryParam = { category }
 
   if (color && color?.toLocaleLowerCase() !== 'any color') {
@@ -21,8 +21,8 @@ const handleQueryParams = ({ color, min, max, category, search, profession, card
     queryParam = { ...queryParam, profession }
   }
 
-  if (cardMaterial && cardMaterial?.toLocaleLowerCase() !== 'any card') {
-    queryParam = { ...queryParam, cardMaterial }
+  if (material && material?.toLocaleLowerCase() !== 'any material') {
+    queryParam = { ...queryParam, material }
   }
 
   return queryParam

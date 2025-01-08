@@ -14,7 +14,7 @@ import Card from '../components/Card'
 import Dropdown from '../components/Dropdown'
 import priceRange from '../utils/constants/priceRange'
 import handleQueryParams from '../utils/queryParams'
-import { PROFESSION_OPTIONS, OPTIONS, CARD_MATERIAL_OPTIONS } from '../utils/constants/appConstants'
+import { PROFESSION_OPTIONS, OPTIONS, MATERIAL_OPTIONS } from '../utils/constants/appConstants'
 
 import styles from '../styles/pages/Search.module.sass'
 import { PageMeta } from '../components/Meta'
@@ -34,7 +34,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 500);
+    }, 800);
 
     if (searchResult && searchResult.length > 0) {
       setSearchResultValue(searchResult);
@@ -65,7 +65,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
 
   const [professionOption, setProfessionOption] = useState(query['profession'] || PROFESSION_OPTIONS[0])
 
-  const [cardMaterialOption, setCardMaterialOption] = useState(query['cardMaterial'] || CARD_MATERIAL_OPTIONS[0])
+  const [materialOption, setMaterialOption] = useState(query['material'] || MATERIAL_OPTIONS[0])
 
 
   const handleChange = ({ target: { name, value } }) => {
@@ -83,7 +83,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
       max = debouncedMaxTerm,
       search = debouncedSearchTerm,
       profession = professionOption,
-      cardMaterial = cardMaterialOption,
+      material = materialOption,
     }) => {
       const params = handleQueryParams({
         category,
@@ -92,7 +92,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
         max: max.trim(),
         search: search.toLowerCase().trim(),
         profession,
-        cardMaterial,
+        material,
       })
 
       push(
@@ -134,7 +134,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
       option,
       push,
       professionOption,
-      cardMaterialOption,
+      materialOption,
     ]
   )
 
@@ -154,10 +154,10 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
     [handleFilterDataByParams]
   )
 
-  const getDataByFilterCardMaterialOptions = useCallback(
-    async cardMaterial => {
-      setCardMaterialOption(cardMaterial)
-      handleFilterDataByParams({ cardMaterial })
+  const getDataByFilterMaterialOptions = useCallback(
+    async material => {
+      setMaterialOption(material)
+      handleFilterDataByParams({ material })
     },
     [handleFilterDataByParams]
   )
@@ -182,7 +182,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
     setActiveIndex('')
     setOption(OPTIONS[0])
     setProfessionOption(PROFESSION_OPTIONS[0])
-    setCardMaterialOption(CARD_MATERIAL_OPTIONS[0])
+    setMaterialOption(MATERIAL_OPTIONS[0])
 
     handleFilterDataByParams({
       category: '',
@@ -191,7 +191,7 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
       max: debouncedMaxTerm,
       search: '',
       profession: PROFESSION_OPTIONS[0],
-      cardMaterial: CARD_MATERIAL_OPTIONS[0],
+      material: MATERIAL_OPTIONS[0],
     })
 
   }
@@ -259,12 +259,12 @@ const Search = ({ categoriesGroup, navigationItems, categoryData }) => {
               </div>
               <div className={styles.sorting}>
                 <div className={styles.dropdown}>
-                  <div className={styles.label}>Card Material</div>
+                  <div className={styles.label}>Material</div>
                   <Dropdown
                     className={styles.dropdown}
-                    value={cardMaterialOption}
-                    setValue={getDataByFilterCardMaterialOptions}
-                    options={CARD_MATERIAL_OPTIONS}
+                    value={materialOption}
+                    setValue={getDataByFilterMaterialOptions}
+                    options={MATERIAL_OPTIONS}
                   />
                 </div>
               </div>
