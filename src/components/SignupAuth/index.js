@@ -19,8 +19,9 @@ const SignupAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { setCosmicUser } = useStateContext()
-  const { push } = useRouter()
+  const { cosmicUser,setCosmicUser } = useStateContext()
+ const router = useRouter()
+  const { push } = router
 
   const [{ username, email, password }, setFields] = useState(
     () => registerFields
@@ -78,6 +79,7 @@ const SignupAuth = ({
   const submitForm = useCallback(
     async e => {
       e.preventDefault()
+      const isItemsPage = router.asPath.includes('/item')
       fillFiledMessage?.length && setFillFiledMessage('')
       setLoading(true)
 
@@ -113,11 +115,12 @@ const SignupAuth = ({
             })
             setFillFiledMessage('Account created successfully!')
             setFields(registerFields)
-            handleOAuth(user)
+            handleOAuth(cosmicUser)
             handleClose()
           }
           // Redirect to user profile page
-          push(`/${username}`)
+          // TODO : handle 404 part
+          !isItemsPage ? push(`/${username}`): push(`/`)
         } catch (error) {
           if (error.code === 'auth/email-already-in-use') {
             // If email is already in use, redirect to login page

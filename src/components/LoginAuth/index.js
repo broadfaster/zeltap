@@ -19,8 +19,9 @@ const LoginAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { setCosmicUser } = useStateContext()
-  const { push } = useRouter()
+  const { cosmicUser, setCosmicUser } = useStateContext()
+  const router = useRouter()
+  const { push } = router
 
   const [{ email, password }, setFields] = useState(() => loginFields)
   const [fillFiledMessage, setFillFiledMessage] = useState('')
@@ -48,6 +49,7 @@ const LoginAuth = ({
   const submitForm = useCallback(
     async e => {
       e.preventDefault()
+      const isItemsPage = router.asPath.includes('/item')
       fillFiledMessage?.length && setFillFiledMessage('')
       setLoading(true)
 
@@ -83,8 +85,9 @@ const LoginAuth = ({
               })
               setFillFiledMessage('Account LoggedIn successfully!')
               setFields(loginFields)
-              handleOAuth(user)
-              push(`/${username}`)
+              handleOAuth(cosmicUser)
+              // TODO : handle 404 part
+              !isItemsPage ? push(`/${username}`) : handleClose()
               handleClose()
             }
 

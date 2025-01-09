@@ -255,20 +255,6 @@ const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
 
 export default Links
 
-const EditIcon = styled.div`
-  position: absolute;
-  bottom: 5px;
-  right: 5px;
-  cursor: pointer;
-  background-color: white;
-  border-radius: 50%;
-  padding: 5px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
-  &:hover {
-    background-color: #f0f0f0;
-  }
-`
-
 const LinkWrapper = styled.div`
   position: relative;
   align-items: center;
@@ -329,6 +315,21 @@ const AvatarWrap = styled.div`
     background: ${({ theme }) => theme.bg.primary};
   }
 `
+
+const EditIcon = styled.div`
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  cursor: pointer;
+  background-color: white;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`;
 
 const Title = styled.div`
   display: flex;
