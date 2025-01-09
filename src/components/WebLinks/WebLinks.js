@@ -1,21 +1,23 @@
 import styled from 'styled-components'
 import { HexIcon, NewUp, OvalIcon } from '../icons'
+import { FooterData } from '../../utils/constants/appConstants'
+import Icon from '../Icon'
+import { auth, uploadImageForUser } from '../../utils/firebase'
 
-const Links = ({ allLinks, bioData }) => {
-  // all user info from bioData
+const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
   const name = bioData?.name
   const url = bioData?.url
   const username = bioData?.username
-  const titleImg = bioData?.titleImg
   const avatarImg = bioData?.avatar
   const description = bioData?.description
   const descShow = bioData?.descShow
   const subdesc = bioData?.subdesc
   const subdescShow = bioData?.subdescShow
-  const footerText = bioData?.footerText
-  const author = bioData?.author
-  const authorURL = bioData?.authorURL
-  const titleImage = '/title.svg'
+
+  // static data
+  const footerText = FooterData?.footerText
+  const author = FooterData?.author
+  const authorURL = FooterData?.authorURL
 
   // Check what class to use oval or hex for avatar
   const avatarShape = bioData?.nftAvatar ? `nft-clipped` : `oval-clipped`
@@ -28,29 +30,41 @@ const Links = ({ allLinks, bioData }) => {
     ? subdesc
     : `Write your own if you want or just remove me/leave blank`
 
+  // Card Image
   const newProduct = bioData?.newProduct // checking for newProduct flag true false
   const newProductUrl = bioData?.newProductUrl // get product url if available
 
-  // Collect all links filter by type - social, project, nft and other etc=
-  // get data for social section
+  // social section
   const social = allLinks.filter(el => {
     return el.type === 'social' && el.on
   })
 
-  // Get data for install section
-  const install = allLinks.filter(el => {
-    return el.type === 'install' && el.on
+  // links section
+  const links = allLinks.filter(el => {
+    return el.type === 'links' && el.on
   })
 
-  // Get data for nfts
+  // nfts
   const nfts = allLinks.filter(el => {
     return el.type === 'nft' && el.on
   })
 
-  // Get data for other section
-  const others = allLinks.filter(el => {
-    return el.type === 'other' && el.on
+  // card section
+  const cards = allLinks.filter(el => {
+    return el.type === 'card' && el.on
   })
+
+  const handleEditClick = () => {
+    document.getElementById('fileInput').click()
+  }
+
+  const handleFileChange = event => {
+    const file = event.target.files[0]
+    const username = auth.currentUser.username // Get the current authenticated user's UID
+    if (file) {
+      uploadImageForUser(file, username)
+    }
+  }
 
   return (
     <LinkWrapper>
@@ -64,16 +78,33 @@ const Links = ({ allLinks, bioData }) => {
                 <OvalIcon />
                 <div className={`${avatarShape} avatar-border`}></div>
                 <div className={`${avatarShape} avatar-fill`}></div>
-                <img src={avatarImg} className={avatarShape} />
+                {avatarImg ? (
+                  <img src={avatarImg} className={avatarShape} />
+                ) : (
+                  <img
+                    src={'/images/content/avatar.png'}
+                    className={avatarShape}
+                  />
+                )}
+                {isUserProfileOwner && (
+                  <>
+                    <EditIcon onClick={handleEditClick}>
+                      <Icon name="pencil" size="18" />
+                    </EditIcon>
+
+                    <input
+                      type="file"
+                      id="fileInput"
+                      style={{ display: 'none' }}
+                      onChange={handleFileChange}
+                      accept="image/*"
+                    />
+                  </>
+                )}
               </AvatarWrap>
             </Avatar>
             <Title>
-              {/* Using titleimg flag to use image as title or text */}
-              {titleImg ? (
-                <img src={titleImage} className="handle" />
-              ) : (
-                <h1>{name}</h1>
-              )}
+              <h1>{name}</h1>
               {/* if your remove username from data it will not appear */}
               {username ? (
                 <h3>
@@ -115,10 +146,10 @@ const Links = ({ allLinks, bioData }) => {
             </LinkSection>
             {/* Social Icon */}
 
-            {/* Other Section */}
-            {others.length > 0 ? (
+            {/* Cards Section */}
+            {cards.length > 0 ? (
               <LinkSection>
-                <h3>{others?.type}</h3>
+                <h3>{cards[0]?.type}</h3>
                 {/* BioData.js > newProduct == true */}
                 {/* New Section will render once newProduct == true */}
                 {newProduct ? (
@@ -131,7 +162,7 @@ const Links = ({ allLinks, bioData }) => {
                   ''
                 )}
                 {/* End Biodata.js, You can move this section anywhere */}
-                {others.map(i => {
+                {cards.map(i => {
                   return (
                     <a
                       href={i.url}
@@ -153,11 +184,11 @@ const Links = ({ allLinks, bioData }) => {
               ''
             )}
             {/* End Other Section */}
-            {/* Install Section */}
-            {install.length > 0 ? (
+            {/* Links Section */}
+            {links.length > 0 ? (
               <LinkSection>
-                <h3>{install?.type}</h3>
-                {install.map(i => {
+                <h3>{links[0]?.type}</h3>
+                {links.map(i => {
                   return (
                     <a
                       href={i.url}
@@ -179,8 +210,7 @@ const Links = ({ allLinks, bioData }) => {
             ) : (
               ''
             )}
-            {/* End Install Section */}
-
+            {/* End Links Section */}
             {/* NFT Section */}
             {nfts.length > 0 ? (
               <LinkSection>
@@ -224,6 +254,20 @@ const Links = ({ allLinks, bioData }) => {
 }
 
 export default Links
+
+const EditIcon = styled.div`
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  cursor: pointer;
+  background-color: white;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`
 
 const LinkWrapper = styled.div`
   position: relative;

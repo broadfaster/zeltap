@@ -106,32 +106,32 @@ const webLinks = [
     icon: '/opensea.svg',
     on: false,
   },
-  // Install section
+  // Links section
   {
     title: 'Random',
     url: 'https://github.com/realvjy/nxt-lnk/generate',
-    type: 'install',
+    type: 'links',
     icon: '/use.png',
     on: true,
   },
   {
     title: 'Random',
     url: 'https://vercel.com/import/git?s=https://github.com/realvjy/nxt-lnk',
-    type: 'install',
+    type: 'links',
     icon: '/vercel.svg',
     on: true,
   },
   {
     title: 'Random',
     url: 'https://github.com/realvjy/nxt-lnk#nxt-lnk',
-    type: 'install',
+    type: 'links',
     icon: '/doc.png',
     on: true,
   },
   {
     title: 'Github',
     url: 'https://github.com/realvjy/nxt-lnk',
-    type: 'install',
+    type: 'links',
     icon: '/github-fill.svg',
     on: false,
   },
@@ -139,7 +139,7 @@ const webLinks = [
   {
     title: 'Buy a NFC Card',
     url: 'https://www.zeltap.com/search',
-    type: 'other',
+    type: 'card',
     icon: '/bmc.png',
     on: true,
   },
@@ -147,7 +147,7 @@ const webLinks = [
   {
     title: 'Activate through QR',
     url: 'https://vjy.me/lnk',
-    type: 'other',
+    type: 'card',
     icon: '/vjy.png',
     on: true,
   },
@@ -155,7 +155,7 @@ const webLinks = [
   {
     title: 'Activate through NFC',
     url: 'https://vjy.me',
-    type: 'other',
+    type: 'card',
     icon: '/vjy.png',
     on: true,
   },
