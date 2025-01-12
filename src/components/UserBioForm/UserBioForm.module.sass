@@ -1,0 +1,78 @@
+@import ../../styles/helpers
+
+.title
+    margin-bottom: 32px
+
+.text
+    margin-bottom: 32px
+    +body-2
+    color: $neutrals4
+
+.error
+    margin-bottom: 3px
+    +body-bold-1
+    color: $blue
+
+.input
+    margin: 10px 2px
+    width: 100%
+    height: 48px
+    border: 2px solid $neutrals6
+    border-radius: 8px !important
+    padding: 10px
+    background: none
+    border-radius: 0
+    +poppins
+    +body-bold-2
+    color: $neutrals2
+    transform: border-color .2s
+    +dark
+        border-color: $neutrals3
+        color: $neutrals8
+    +placeholder
+        color: $neutrals4
+    &:focus
+        border-color: $neutrals4
+
+.btns
+    margin-top: 32px
+
+.button
+    width: 100%
+    &:not(:last-child)
+        margin-bottom: 8px
+
+.link
+    margin: 0 6px
+    padding: 6px 12px
+    border-radius: 14px
+    background: none
+    +button-2
+    color: blue
+    transition: all .2s
+    &:hover
+        color: $neutrals3
+        +dark
+            color: $neutrals6
+    &.active
+        background: $neutrals3
+        color: $neutrals8
+        +dark
+            background: $neutrals8
+            color: $neutrals2
+    &:nth-child(n+5)
+        +d
+            display: none
+
+.toggle
+    margin-top: 20px
+    display: flex
+    flex-direction: column
+    align-item: center
+    justify-content: center
+
+.para 
+    text-align: center
+    
+.label
+    color: $blue

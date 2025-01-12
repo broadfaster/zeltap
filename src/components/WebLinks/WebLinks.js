@@ -1,18 +1,37 @@
+import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { HexIcon, NewUp, OvalIcon } from '../icons'
 import { FooterData } from '../../utils/constants/appConstants'
 import Icon from '../Icon'
 import { auth, uploadImageForUser } from '../../utils/firebase'
+import bioDataTemplate from '../../data/bioDataTemplate'
+import mergeUserBioData from '../../utils/mergeUserBioData'
+import Modal from '../Modal'
+import UserBioForm from '../UserBioForm'
 
-const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
-  const name = bioData?.name
-  const url = bioData?.url
-  const username = bioData?.username
-  const avatarImg = bioData?.avatar
-  const description = bioData?.description
-  const descShow = bioData?.descShow
-  const subdesc = bioData?.subdesc
-  const subdescShow = bioData?.subdescShow
+const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
+  const bioData = mergeUserBioData(firebaseBioData, bioDataTemplate)
+  const {
+    name,
+    description,
+    subdesc,
+    descShow,
+    subdescShow,
+    avatarImg,
+    nftAvatar,
+    username,
+    url,
+    newProduct,
+    newProductUrl,
+  } = bioData
+
+  const [editableBioData, setEditableBioData] = useState({
+    name,
+    description,
+    subdesc,
+  })
+
+  const [visibleAuthModal, setVisibleAuthModal] = useState(false)
 
   // static data
   const footerText = FooterData?.footerText
@@ -20,19 +39,15 @@ const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
   const authorURL = FooterData?.authorURL
 
   // Check what class to use oval or hex for avatar
-  const avatarShape = bioData?.nftAvatar ? `nft-clipped` : `oval-clipped`
+  const avatarShape = nftAvatar ? `nft-clipped` : `oval-clipped`
 
   // Description and subdescription goes here
   const descriptionText = descShow
-    ? description
-    : `Write your own fall back text if description not in BioData.js or remove me/leave blank`
+    ? editableBioData.description
+    : `Please Add Description`
   const subdescText = subdescShow
-    ? subdesc
-    : `Write your own if you want or just remove me/leave blank`
-
-  // Card Image
-  const newProduct = bioData?.newProduct // checking for newProduct flag true false
-  const newProductUrl = bioData?.newProductUrl // get product url if available
+    ? editableBioData.subdesc
+    : `Please Add Sub Description or Remove`
 
   // social section
   const social = allLinks.filter(el => {
@@ -66,8 +81,21 @@ const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
     }
   }
 
+  const handleBioUpdate = useCallback(
+    updatedBio => {
+      setEditableBioData(updatedBio)
+      setVisibleAuthModal(false)
+    },
+    [editableBioData, setEditableBioData]
+  )
+
   return (
     <LinkWrapper>
+      {isUserProfileOwner && (
+        <MainEditBtn onClick={() => setVisibleAuthModal(true)}>
+          <Icon name="pencil" size="18" />
+        </MainEditBtn>
+      )}
       <LinkContainer>
         <TopPart>
           <LinkHeader>
@@ -104,8 +132,7 @@ const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
               </AvatarWrap>
             </Avatar>
             <Title>
-              <h1>{name}</h1>
-              {/* if your remove username from data it will not appear */}
+              <h1>{editableBioData.name}</h1>
               {username ? (
                 <h3>
                   <a href={`${url}`}>{username}</a>
@@ -118,8 +145,8 @@ const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
 
           {/* Bio Section */}
           <LinkBio>
-            {description && <h1>{descriptionText} </h1>}
-            {subdesc && <h4>{subdescText}</h4>}
+            <h1>{descriptionText}</h1>
+            <h4>{subdescText}</h4>
           </LinkBio>
           {/* End Bio Section */}
 
@@ -249,6 +276,16 @@ const Links = ({ allLinks, bioData, isUserProfileOwner }) => {
           </LinkFoot>
         </BottomPart>
       </LinkContainer>
+      <Modal
+        visible={visibleAuthModal}
+        onClose={() => setVisibleAuthModal(false)}
+      >
+        <UserBioForm
+          bioData={editableBioData}
+          handleBioUpdate={handleBioUpdate}
+          handleClose={() => setVisibleAuthModal(false)}
+        />
+      </Modal>
     </LinkWrapper>
   )
 }
@@ -329,7 +366,22 @@ const EditIcon = styled.div`
   &:hover {
     background-color: #f0f0f0;
   }
-`;
+`
+
+const MainEditBtn = styled.div`
+  position: fixed; /* Use fixed for consistent positioning relative to the viewport */
+  top: 20px; /* Distance from the top */
+  right: 30px; /* Distance from the right */
+  cursor: pointer;
+  background-color: white;
+  border-radius: 50%;
+  padding: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`
 
 const Title = styled.div`
   display: flex;
@@ -574,14 +626,17 @@ const LinkTitle = styled.div`
 const NewSection = styled.div`
   display: flex;
   align-items: center;
-  padding: 16px 20px;
+  padding: 15px 20px;
   img {
     width: 100%;
+    height: 100%;
+    object-fit: cover;
     border: 1px solid ${({ theme }) => theme.bg.secondary};
     border-radius: 12px;
     cursor: pointer;
     &:hover {
-      transform: scale(1.01);
+      transform: scale(1.01) rotate3d(1, 1, 0, 2deg);
+      transition: transform 0.3s ease-in-out;
     }
   }
 `

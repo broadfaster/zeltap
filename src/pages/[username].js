@@ -7,7 +7,7 @@ import { darkTheme, lightTheme } from '../styles/theme.config'
 import useDarkMode from 'use-dark-mode'
 import GlobalStyle from '../styles/GlobalStyle'
 import allLinks from '../data/LinksData'
-import bioData from '../data/BioData'
+import bioDataTemplate from '../data/bioDataTemplate'
 import { doc, getDoc, Timestamp } from 'firebase/firestore'
 import { db } from '../utils/firebase'
 import { useStateContext } from '../utils/context/StateContext'
@@ -56,7 +56,7 @@ const UserProfile = ({ firestoreData }) => {
   const isUserProfileOwner =
     isLoggedIn && currentUserFromParam === currentUserName
 
-  const bio = firestoreData?.userData?.bio || bioData
+  const bio = firestoreData?.userData?.bio || bioDataTemplate
   const links = firestoreData?.userData?.links || allLinks
 
   return (
@@ -65,7 +65,7 @@ const UserProfile = ({ firestoreData }) => {
       <UserLayout>
         <WebLinks
           allLinks={links}
-          bioData={bio}
+          firebaseBioData={bio}
           isUserProfileOwner={isUserProfileOwner}
         />
       </UserLayout>

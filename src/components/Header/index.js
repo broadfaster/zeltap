@@ -6,7 +6,6 @@ import Image from 'next/image'
 import User from './User'
 import Theme from '../Theme'
 import Modal from '../Modal'
-import OAuth from '../OAuth'
 import { useStateContext } from '../../utils/context/StateContext'
 import { getToken } from '../../utils/token'
 
