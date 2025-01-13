@@ -1,4 +1,4 @@
-import { createGlobalStyle } from "styled-components";
+import { createGlobalStyle } from 'styled-components'
 
 const GlobalStyle = createGlobalStyle`
 body.dark-mode {
@@ -72,13 +72,13 @@ a{
   font-size: 14px;
   font-weight: 600;
 }
-.container{
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto;
+// .container{
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   margin: 0 auto;
   
-}
+// }
 
 .nft-clipped{
   clip-path: url(#hex);
@@ -97,6 +97,6 @@ a{
 }
 
    
-`;
+`
 
-export default GlobalStyle;
+export default GlobalStyle

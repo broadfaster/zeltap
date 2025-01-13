@@ -3,7 +3,7 @@ const bioDataTemplate = {
   username: '',
   url: '',
   avatarImg: '/images/content/avatar.png',
-  nftAvatar: true,
+  nftAvatar: false,
   description: 'Please Add Description',
   descShow: true,
   subdesc: 'Please Add Sub Description',
