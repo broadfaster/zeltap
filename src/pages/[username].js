@@ -3,9 +3,9 @@ import { useRouter } from 'next/router'
 import WebLinks from '../components/WebLinks/WebLinks'
 import UserLayout from '../components/UserLayout/UserLayout'
 import { ThemeProvider } from 'styled-components'
-import { darkTheme, lightTheme } from '../styles/theme.config'
+import { darkTheme, lightTheme } from '../styles/pages/theme.config'
 import useDarkMode from 'use-dark-mode'
-import GlobalStyle from '../styles/GlobalStyle'
+import GlobalStyle from '../styles/pages/GlobalStyle'
 import allLinks from '../data/LinksData'
 import bioDataTemplate from '../data/bioDataTemplate'
 import { doc, getDoc, Timestamp } from 'firebase/firestore'
@@ -15,8 +15,11 @@ import { getToken } from '../utils/token'
 import { ClipLoader } from 'react-spinners'
 
 const UserProfile = ({ firestoreData }) => {
-  const darkMode = useDarkMode(false, { storageKey: null, onChange: null })
-  const theme = darkMode.value ? darkTheme : lightTheme
+  const darkMode = useDarkMode(false, {
+    storageKey: 'darkMode',
+    onChange: null,
+  })
+  const theme = darkMode ? darkTheme : lightTheme
   const { cosmicUser, setCosmicUser } = useStateContext()
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
