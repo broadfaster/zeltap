@@ -12,6 +12,7 @@ import { doc, getDoc, Timestamp } from 'firebase/firestore'
 import { db } from '../utils/firebase'
 import { useStateContext } from '../utils/context/StateContext'
 import { getToken } from '../utils/token'
+import { ClipLoader } from 'react-spinners'
 
 const UserProfile = ({ firestoreData }) => {
   const darkMode = useDarkMode(false, { storageKey: null, onChange: null })
@@ -20,6 +21,9 @@ const UserProfile = ({ firestoreData }) => {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [currentUserName, setCurrentUserName] = useState(null)
+  const [bioData, setBioData] = useState(bioDataTemplate)
+  const [allLinksData, setAllLinksData] = useState(allLinks)
+  const [loading, setLoading] = useState(true)
   const { username: currentUserFromParam } = router.query
 
   useEffect(() => {
@@ -41,10 +45,32 @@ const UserProfile = ({ firestoreData }) => {
       setIsLoggedIn(false)
       setCurrentUserName(null)
     }
+
+    const timer = setTimeout(() => {
+      setLoading(false)
+    }, 1000)
+
+    if (
+      firestoreData &&
+      firestoreData?.userData?.bio &&
+      firestoreData?.userData?.links
+    ) {
+      setBioData(firestoreData?.userData?.bio)
+      setAllLinksData(firestoreData?.userData?.links)
+    }
+
     return () => {
       isMounted = false
+      clearTimeout(timer)
     }
-  }, [cosmicUser, setCosmicUser])
+  }, [
+    cosmicUser,
+    setCosmicUser,
+    bioData,
+    setBioData,
+    allLinksData,
+    setAllLinksData,
+  ])
 
   if (firestoreData === false) {
     // TODO: Add not found page here
@@ -56,18 +82,29 @@ const UserProfile = ({ firestoreData }) => {
   const isUserProfileOwner =
     isLoggedIn && currentUserFromParam === currentUserName
 
-  const bio = firestoreData?.userData?.bio || bioDataTemplate
-  const links = firestoreData?.userData?.links || allLinks
-
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyle />
       <UserLayout>
-        <WebLinks
-          allLinks={links}
-          firebaseBioData={bio}
-          isUserProfileOwner={isUserProfileOwner}
-        />
+        {loading ? (
+          <ClipLoader
+            size={50}
+            color="#36D7B7"
+            loading={loading}
+            cssOverride={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+            }}
+          />
+        ) : (
+          <WebLinks
+            allLinks={allLinksData}
+            firebaseBioData={bioData}
+            isUserProfileOwner={isUserProfileOwner}
+          />
+        )}
       </UserLayout>
     </ThemeProvider>
   )

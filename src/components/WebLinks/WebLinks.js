@@ -8,6 +8,10 @@ import bioDataTemplate from '../../data/bioDataTemplate'
 import mergeUserBioData from '../../utils/mergeUserBioData'
 import Modal from '../Modal'
 import UserBioForm from '../UserBioForm'
+import linksDataTemplate from '../../data/linksDataTemplate'
+import AddUserLinksForm from '../AddUserLinksForm'
+
+import style from '../AddUserLinksForm/AddUserLinksForm.module.sass'
 import UserLinksForm from '../UserLinksForm'
 
 const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
@@ -31,6 +35,9 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     description,
     subdesc,
   })
+
+  const [addLinksData, setAddLinksData] = useState(linksDataTemplate)
+  const [visibleAddLinksModal, setVisibleAddLinksModal] = useState(false)
 
   const [visibleAuthModal, setVisibleAuthModal] = useState(false)
   const [visibleLinkModal, setVisibleLinkModal] = useState(false)
@@ -112,6 +119,14 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     [editableBioData, setEditableBioData]
   )
 
+  const handleAllLinksUpdate = useCallback(
+    updatedAllLinks => {
+      setAddLinksData(updatedAllLinks)
+      setVisibleAddLinksModal(false)
+    },
+    [addLinksData, setAddLinksData]
+  )
+
   const handleLinkUpdate = useCallback(
     updatedLink => {
       setLinkData({
@@ -125,73 +140,74 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
   )
 
   return (
-    <LinkWrapper>
-      {isUserProfileOwner && (
-        <MainEditBtn onClick={() => setVisibleAuthModal(true)}>
-          <Icon name="pencil" size="18" />
-        </MainEditBtn>
-      )}
-      <LinkContainer>
-        <TopPart>
-          <LinkHeader>
-            <Avatar>
-              <AvatarWrap>
-                {/* Avatar svg  hex or oval if nftAvatar=true will convert to hex */}
-                <HexIcon />
-                <OvalIcon />
-                <div className={`${avatarShape} avatar-border`}></div>
-                <div className={`${avatarShape} avatar-fill`}></div>
-                {avatarImg ? (
-                  <img src={avatarImg} className={avatarShape} />
-                ) : (
-                  <img
-                    src={'/images/content/avatar.png'}
-                    className={avatarShape}
-                  />
-                )}
-                {isUserProfileOwner && (
-                  <>
-                    <EditIcon onClick={handleEditClick}>
-                      <Icon name="pencil" size="18" />
-                    </EditIcon>
-
-                    <input
-                      type="file"
-                      id="fileInput"
-                      style={{ display: 'none' }}
-                      onChange={handleFileChange}
-                      accept="image/*"
+    <>
+      <LinkWrapper>
+        {isUserProfileOwner && (
+          <MainEditBtn onClick={() => setVisibleAuthModal(true)}>
+            <Icon name="pencil" size="18" />
+          </MainEditBtn>
+        )}
+        <LinkContainer>
+          <TopPart>
+            <LinkHeader>
+              <Avatar>
+                <AvatarWrap>
+                  {/* Avatar svg  hex or oval if nftAvatar=true will convert to hex */}
+                  <HexIcon />
+                  <OvalIcon />
+                  <div className={`${avatarShape} avatar-border`}></div>
+                  <div className={`${avatarShape} avatar-fill`}></div>
+                  {avatarImg ? (
+                    <img src={avatarImg} className={avatarShape} />
+                  ) : (
+                    <img
+                      src={'/images/content/avatar.png'}
+                      className={avatarShape}
                     />
-                  </>
+                  )}
+                  {isUserProfileOwner && (
+                    <>
+                      <EditIcon onClick={handleEditClick}>
+                        <Icon name="pencil" size="18" />
+                      </EditIcon>
+
+                      <input
+                        type="file"
+                        id="fileInput"
+                        style={{ display: 'none' }}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                      />
+                    </>
+                  )}
+                </AvatarWrap>
+              </Avatar>
+              <Title>
+                <h1>{editableBioData.name}</h1>
+                {username ? (
+                  <h3>
+                    <a href={`${url}`}>{username}</a>
+                  </h3>
+                ) : (
+                  ''
                 )}
-              </AvatarWrap>
-            </Avatar>
-            <Title>
-              <h1>{editableBioData.name}</h1>
-              {username ? (
-                <h3>
-                  <a href={`${url}`}>{username}</a>
-                </h3>
-              ) : (
-                ''
-              )}
-            </Title>
-          </LinkHeader>
+              </Title>
+            </LinkHeader>
 
-          {/* Bio Section */}
-          <LinkBio>
-            <h1>{descriptionText}</h1>
-            <h4>{subdescText}</h4>
-          </LinkBio>
-          {/* End Bio Section */}
+            {/* Bio Section */}
+            <LinkBio>
+              <h1>{descriptionText}</h1>
+              <h4>{subdescText}</h4>
+            </LinkBio>
+            {/* End Bio Section */}
 
-          {/* Weblinks started */}
-          <WebLinkWrap>
-            {/* Social Icon */}
-            <LinkSection className="social">
-              <div className="iconsonly">
-                {social.map(i => {
-                  console.table(social)
+            {/* Weblinks started */}
+            <WebLinkWrap>
+              {/* Social Icon */}
+              <LinkSection className="social">
+                <div className="iconsonly">
+                  {social.map(i => {
+                    console.table(social)
                   return isUserProfileOwner ? (
                     <a key={i.title} onClick={e => handleLinksClick(e, i)}>
                       <LinkBox className="socialIcon">
@@ -199,136 +215,142 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
                       </LinkBox>
                     </a>
                   ) : (
-                    <a
-                      href={i.url}
-                      key={i.title}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <LinkBox className="socialIcon">
-                        <img src={i.icon} style={{ filter: 'var(--img)' }} />
-                      </LinkBox>
-                    </a>
-                  )
-                })}
-              </div>
-            </LinkSection>
-            {/* Social Icon */}
+                      <a
+                        href={i.url}
+                        key={i.title}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkBox className="socialIcon">
+                          <img src={i.icon} style={{ filter: 'var(--img)' }} />
+                        </LinkBox>
+                      </a>
+                    )
+                  })}
+                </div>
+              </LinkSection>
+              {/* Social Icon */}
 
-            {/* Cards Section */}
-            {cards.length > 0 ? (
-              <LinkSection>
-                <h3>{cards[0]?.type}</h3>
-                {/* BioData.js > newProduct == true */}
-                {/* New Section will render once newProduct == true */}
-                {newProduct ? (
-                  <NewSection>
-                    <a href={newProductUrl} target="_blank" rel="noreferrer">
-                      <img src={'/newproduct.png'} className="newproduct" />
-                    </a>
-                  </NewSection>
-                ) : (
-                  ''
-                )}
-                {/* End Biodata.js, You can move this section anywhere */}
-                {cards.map(i => {
-                  return (
-                    <a
-                      href={i.url}
-                      key={i.title}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <LinkBox>
-                        <LinkTitle>
-                          <img src={i.icon} /> {i.title}
-                        </LinkTitle>{' '}
-                        <NewUp />
-                      </LinkBox>
-                    </a>
-                  )
-                })}
-              </LinkSection>
-            ) : (
-              ''
-            )}
-            {/* End Other Section */}
-            {/* Links Section */}
-            {links.length > 0 ? (
-              <LinkSection>
-                <h3>{links[0]?.type}</h3>
-                {links.map(i => {
-                  return (
-                    <a
-                      href={i.url}
-                      key={i.title}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <LinkBox>
-                        <LinkTitle>
-                          <img src={i.icon} style={{ filter: 'var(--img)' }} />{' '}
-                          {i.title}
-                        </LinkTitle>{' '}
-                        <NewUp />
-                      </LinkBox>
-                    </a>
-                  )
-                })}
-              </LinkSection>
-            ) : (
-              ''
-            )}
-            {/* End Links Section */}
-            {/* NFT Section */}
-            {nfts.length > 0 ? (
-              <LinkSection>
-                <h3>{nfts?.type}s</h3>
-                {nfts.map(i => {
-                  return (
-                    <a
-                      href={i.url}
-                      key={i.title}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      <LinkBox>
-                        <LinkTitle>
-                          <img src={i.icon} style={{ filter: 'var(--img)' }} />{' '}
-                          {i.title}
-                        </LinkTitle>{' '}
-                        <NewUp />
-                      </LinkBox>
-                    </a>
-                  )
-                })}
-              </LinkSection>
-            ) : (
-              ''
-            )}
-            {/* End NFT Section */}
-          </WebLinkWrap>
-          {/* End Weblinks */}
-        </TopPart>
-        <BottomPart>
-          <LinkFoot>
-            <h4>
-              {footerText} <a href={authorURL}>{author}</a>
-            </h4>
-          </LinkFoot>
-        </BottomPart>
-      </LinkContainer>
-      <Modal
-        visible={visibleAuthModal}
-        onClose={() => setVisibleAuthModal(false)}
-      >
-        <UserBioForm
-          bioData={editableBioData}
-          handleBioUpdate={handleBioUpdate}
-          handleClose={() => setVisibleAuthModal(false)}
-        />
-      </Modal>
-      <Modal
+              {/* Cards Section */}
+              {cards.length > 0 ? (
+                <LinkSection>
+                  <h3>{cards[0]?.type}</h3>
+                  {/* BioData.js > newProduct == true */}
+                  {/* New Section will render once newProduct == true */}
+                  {newProduct ? (
+                    <NewSection>
+                      <a href={newProductUrl} target="_blank" rel="noreferrer">
+                        <img src={'/newproduct.png'} className="newproduct" />
+                      </a>
+                    </NewSection>
+                  ) : (
+                    ''
+                  )}
+                  {/* End Biodata.js, You can move this section anywhere */}
+                  {cards.map(i => {
+                    return (
+                      <a
+                        href={i.url}
+                        key={i.title}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkBox>
+                          <LinkTitle>
+                            <img src={i.icon} /> {i.title}
+                          </LinkTitle>{' '}
+                          <NewUp />
+                        </LinkBox>
+                      </a>
+                    )
+                  })}
+                </LinkSection>
+              ) : (
+                ''
+              )}
+              {/* End Other Section */}
+              {/* Links Section */}
+              {links.length > 0 ? (
+                <LinkSection>
+                  <h3>{links[0]?.type}</h3>
+                  {links.map(i => {
+                    return (
+                      <a
+                        href={i.url}
+                        key={i.title}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkBox>
+                          <LinkTitle>
+                            <img
+                              src={i.icon}
+                              style={{ filter: 'var(--img)' }}
+                            />{' '}
+                            {i.title}
+                          </LinkTitle>{' '}
+                          <NewUp />
+                        </LinkBox>
+                      </a>
+                    )
+                  })}
+                </LinkSection>
+              ) : (
+                ''
+              )}
+              {/* End Links Section */}
+              {/* NFT Section */}
+              {nfts.length > 0 ? (
+                <LinkSection>
+                  <h3>{nfts?.type}s</h3>
+                  {nfts.map(i => {
+                    return (
+                      <a
+                        href={i.url}
+                        key={i.title}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <LinkBox>
+                          <LinkTitle>
+                            <img
+                              src={i.icon}
+                              style={{ filter: 'var(--img)' }}
+                            />{' '}
+                            {i.title}
+                          </LinkTitle>{' '}
+                          <NewUp />
+                        </LinkBox>
+                      </a>
+                    )
+                  })}
+                </LinkSection>
+              ) : (
+                ''
+              )}
+              {/* End NFT Section */}
+            </WebLinkWrap>
+            {/* End Weblinks */}
+          </TopPart>
+          <BottomPart>
+            <LinkFoot>
+              <h4>
+                {footerText} <a href={authorURL}>{author}</a>
+              </h4>
+            </LinkFoot>
+          </BottomPart>
+        </LinkContainer>
+        <Modal
+          visible={visibleAuthModal}
+          onClose={() => setVisibleAuthModal(false)}
+        >
+          <UserBioForm
+            bioData={editableBioData}
+            handleBioUpdate={handleBioUpdate}
+            handleClose={() => setVisibleAuthModal(false)}
+          />
+        </Modal>
+        <Modal
         visible={visibleLinkModal}
         onClose={() => setVisibleLinkModal(false)}
       >
@@ -339,6 +361,26 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
         />
       </Modal>
     </LinkWrapper>
+
+      <AddLinksButtonWrapper>
+        {isUserProfileOwner && (
+          <AddLinksButton onClick={() => setVisibleAddLinksModal(true)}>
+            <Icon name="plus" size="18" />
+          </AddLinksButton>
+        )}
+      </AddLinksButtonWrapper>
+      <Modal
+        outerClassName={style.outer}
+        visible={visibleAddLinksModal}
+        onClose={() => setVisibleAddLinksModal(false)}
+      >
+        <AddUserLinksForm
+          allLinksData={linksDataTemplate}
+          handleAllLinksUpdate={handleAllLinksUpdate}
+          handleClose={() => visibleAddLinksModal(false)}
+        />
+      </Modal>
+    </>
   )
 }
 
@@ -349,6 +391,16 @@ const LinkWrapper = styled.div`
   align-items: center;
   justify-content: center;
   width: 650px;
+  margin: 0 auto;
+  @media screen and (max-width: ${({ theme }) => theme.deviceSize.tablet}) {
+    width: 100%;
+  }
+`
+
+const AddLinksButtonWrapper = styled.div`
+  position: relative;
+  align-items: center;
+  justify-content: center;
   margin: 0 auto;
   @media screen and (max-width: ${({ theme }) => theme.deviceSize.tablet}) {
     width: 100%;
@@ -691,4 +743,26 @@ const NewSection = styled.div`
       transition: transform 0.3s ease-in-out;
     }
   }
+`
+
+const AddLinksButton = styled.div`
+  position: absolute;
+  bottom: 50px;
+  right: 30px;
+  cursor: pointer;
+  background-color: white;
+  border-radius: 50%;
+  padding: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+`
+
+const Loader = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 `
