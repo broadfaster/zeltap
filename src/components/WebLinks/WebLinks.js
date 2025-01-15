@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import styled from 'styled-components'
 import { HexIcon, NewUp, OvalIcon } from '../icons'
 import { FooterData } from '../../utils/constants/appConstants'
@@ -7,6 +7,7 @@ import { auth, uploadImageForUser } from '../../utils/firebase'
 import bioDataTemplate from '../../data/bioDataTemplate'
 import mergeUserBioData from '../../utils/mergeUserBioData'
 import Modal from '../Modal'
+import CustModal from '../CustModal'
 import UserBioForm from '../UserBioForm'
 import linksDataTemplate from '../../data/linksDataTemplate'
 import AddUserLinksForm from '../AddUserLinksForm'
@@ -36,7 +37,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     subdesc,
   })
 
-  const [addLinksData, setAddLinksData] = useState(linksDataTemplate)
+  const [addLinksData, setAddLinksData] = useState(allLinks || [])
   const [visibleAddLinksModal, setVisibleAddLinksModal] = useState(false)
 
   const [visibleAuthModal, setVisibleAuthModal] = useState(false)
@@ -45,13 +46,9 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     id: '',
     title: '',
     url: '',
+    idx: '',
+    type: '',
   })
-
-  useEffect(() => {
-    console.log('linkData From UseEffect:', linkData)
-    
-
-  }, [linkData, allLinks]) // This runs whenever linkData changes
 
   // static data
   const footerText = FooterData?.footerText
@@ -70,22 +67,22 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     : `Please Add Sub Description or Remove`
 
   // social section
-  const social = allLinks.filter(el => {
+  const social = addLinksData.filter(el => {
     return el.type === 'social' && el.on
   })
 
   // links section
-  const links = allLinks.filter(el => {
+  const links = addLinksData.filter(el => {
     return el.type === 'links' && el.on
   })
 
   // nfts
-  const nfts = allLinks.filter(el => {
+  const nfts = addLinksData.filter(el => {
     return el.type === 'nft' && el.on
   })
 
   // card section
-  const cards = allLinks.filter(el => {
+  const cards = addLinksData.filter(el => {
     return el.type === 'card' && el.on
   })
 
@@ -101,12 +98,14 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     }
   }
 
-  const handleLinksClick = (e, data) => {
+  const handleLinksClick = (e, data, index) => {
     e.preventDefault()
     setLinkData({
       id: data.id,
       title: data.title,
       url: data.url,
+      idx: index,
+      type: data.type,
     })
     setVisibleLinkModal(true)
   }
@@ -121,7 +120,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
 
   const handleAllLinksUpdate = useCallback(
     updatedAllLinks => {
-      setAddLinksData(updatedAllLinks)
+      setAddLinksData([...allLinks, updatedAllLinks])
       setVisibleAddLinksModal(false)
     },
     [addLinksData, setAddLinksData]
@@ -130,11 +129,33 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
   const handleLinkUpdate = useCallback(
     updatedLink => {
       setLinkData({
+        ...linkData,
         id: updatedLink.id,
         title: updatedLink.title,
         url: updatedLink.url,
       })
       setVisibleLinkModal(false)
+      // Using switch to set data to user input data state for UserLinks Form on click to edit if profile owner
+      switch (linkData.type) {
+        case 'links':
+          links[linkData.idx].title = updatedLink.title
+          links[linkData.idx].url = updatedLink.url
+          break
+        case 'social':
+          social[linkData.idx].title = updatedLink.title
+          social[linkData.idx].url = updatedLink.url
+          break
+        case 'nft':
+          nfts[linkData.idx].title = updatedLink.title
+          nfts[linkData.idx].url = updatedLink.url
+          break
+        case 'card':
+          cards[linkData.idx].title = updatedLink.title
+          cards[linkData.idx].url = updatedLink.url
+          break
+        default:
+          break
+      }
     },
     [linkData, setLinkData]
   )
@@ -206,18 +227,20 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
               {/* Social Icon */}
               <LinkSection className="social">
                 <div className="iconsonly">
-                  {social.map(i => {
-                    console.table(social)
-                  return isUserProfileOwner ? (
-                    <a key={i.title} onClick={e => handleLinksClick(e, i)}>
-                      <LinkBox className="socialIcon">
-                        <img src={i.icon} style={{ filter: 'var(--img)' }} />
-                      </LinkBox>
-                    </a>
-                  ) : (
+                  {social.map((i, index) => {
+                    return isUserProfileOwner ? (
+                      <a
+                        key={i.id}
+                        onClick={e => handleLinksClick(e, i, index)}
+                      >
+                        <LinkBox className="socialIcon">
+                          <img src={i.icon} style={{ filter: 'var(--img)' }} />
+                        </LinkBox>
+                      </a>
+                    ) : (
                       <a
                         href={i.url}
-                        key={i.title}
+                        key={i.id}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -251,7 +274,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
                     return (
                       <a
                         href={i.url}
-                        key={i.title}
+                        key={i.id}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -277,7 +300,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
                     return (
                       <a
                         href={i.url}
-                        key={i.title}
+                        key={i.id}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -307,7 +330,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
                     return (
                       <a
                         href={i.url}
-                        key={i.title}
+                        key={i.id}
                         target="_blank"
                         rel="noreferrer"
                       >
@@ -351,16 +374,16 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
           />
         </Modal>
         <Modal
-        visible={visibleLinkModal}
-        onClose={() => setVisibleLinkModal(false)}
-      >
-        <UserLinksForm
-          linkData={linkData}
-          handleLinkUpdate={handleLinkUpdate}
-          handleClose={() => setVisibleLinkModal(false)}
-        />
-      </Modal>
-    </LinkWrapper>
+          visible={visibleLinkModal}
+          onClose={() => setVisibleLinkModal(false)}
+        >
+          <UserLinksForm
+            linkData={linkData}
+            handleLinkUpdate={handleLinkUpdate}
+            handleClose={() => setVisibleLinkModal(false)}
+          />
+        </Modal>
+      </LinkWrapper>
 
       <AddLinksButtonWrapper>
         {isUserProfileOwner && (
@@ -369,17 +392,18 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
           </AddLinksButton>
         )}
       </AddLinksButtonWrapper>
-      <Modal
-        outerClassName={style.outer}
+      <CustModal
+        outerClassName={style.outerClass}
         visible={visibleAddLinksModal}
         onClose={() => setVisibleAddLinksModal(false)}
+        disable={true}
       >
         <AddUserLinksForm
           allLinksData={linksDataTemplate}
           handleAllLinksUpdate={handleAllLinksUpdate}
-          handleClose={() => visibleAddLinksModal(false)}
+          handleClose={() => setVisibleAddLinksModal(false)}
         />
-      </Modal>
+      </CustModal>
     </>
   )
 }

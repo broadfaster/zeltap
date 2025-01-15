@@ -4,6 +4,8 @@ import { useStateContext } from '../../utils/context/StateContext'
 import styled from 'styled-components'
 
 import styles from './AddUserLinksForm.module.sass'
+import Modal from '../Modal'
+import UserLinksForm from '../UserLinksForm'
 
 const AddUserLinksForm = ({
   className,
@@ -12,17 +14,25 @@ const AddUserLinksForm = ({
   allLinksData,
   handleAllLinksUpdate,
 }) => {
-  const [fields, setFields] = useState({
-    ...allLinksData,
+  const [fields, setFields] = useState(
+    allLinksData.filter(el => {
+      return !el.on
+    })
+  )
+
+  const [links, setLinks] = useState({
+    id: '',
+    title: '',
+    url: '',
+    icon: '',
+    on: '',
+    type: '',
   })
 
   const inputElement = useRef(null)
+  const [visibleToAddLinksModal, setVisibleToAddLinksModal] = useState(false)
 
-  const links = allLinksData.filter(el => {
-    return !el.on
-  })
-
-  const groupedLinks = links.reduce((acc, link) => {
+  const groupedLinks = fields.reduce((acc, link) => {
     if (!acc[link.type]) {
       acc[link.type] = []
     }
@@ -51,8 +61,20 @@ const AddUserLinksForm = ({
           <h3>{type.toUpperCase()}</h3>
           <LinkSection className="social">
             <div className="iconsonly">
-              {groupedLinks[type].map(data => (
-                <LinkBox key={data.id} className="socialIcon">
+              {groupedLinks[type].map((data, index) => (
+                <LinkBox
+                  key={data.id}
+                  className="socialIcon"
+                  onClick={() => {
+                    setLinks({
+                      ...groupedLinks[type][index],
+                      id: `${Date.now().toString(36) + Math.random().toString(36).slice(2, 7)}`,
+                      title: data.title,
+                      url: '',
+                    })
+                    setVisibleToAddLinksModal(true)
+                  }}
+                >
                   <label className="label">{data?.title}</label>
                   <img
                     src={data.icon}
@@ -70,6 +92,17 @@ const AddUserLinksForm = ({
           </LinkSection>
         </div>
       ))}
+      <Modal
+        visible={visibleToAddLinksModal}
+        onClose={() => setVisibleToAddLinksModal(false)}
+      >
+        <UserLinksForm
+          linkData={links}
+          handleLinkUpdate={handleAllLinksUpdate}
+          handleClose={() => setVisibleToAddLinksModal(false)}
+          postData={true}
+        />
+      </Modal>
     </div>
   )
 }

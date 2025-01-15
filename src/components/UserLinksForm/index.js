@@ -8,17 +8,21 @@ import toast from 'react-hot-toast'
 
 import styles from './UserLinksForm.module.sass'
 
-const UserBioForm = ({
+const UserLinksForm = ({
   className,
   handleClose,
   disable,
   linkData,
   handleLinkUpdate,
+  postData = false,
 }) => {
   const [fields, setFields] = useState({
     id: linkData.id || '',
     title: linkData.title || '',
     url: linkData.url || '',
+    icon: linkData.icon || '',
+    on: true || false,
+    type: linkData.type || '',
   })
   const { cosmicUser } = useStateContext()
   const [fillFiledMessage, setFillFiledMessage] = useState('')
@@ -30,8 +34,7 @@ const UserBioForm = ({
     if (inputElement.current) {
       inputElement.current.focus()
     }
-    console.log(fields, '################')
-  }, [disable, fields])
+  }, [disable])
 
   const handleChange = ({ target: { name, value } }) => {
     setFields(prevFields => ({
@@ -65,10 +68,40 @@ const UserBioForm = ({
             const links = userData.links || []
             const linkIndex = links.findIndex(link => link.id === id)
             if (linkIndex === -1) {
-              setFillFiledMessage('Link not found.')
-              setLoading(false)
-              return
+              if (postData) {
+                const updatedUserLinksArray = [...links, fields]
+                // Write the updated links array back to Firestore
+                await updateDoc(userDocRef, { links: updatedUserLinksArray })
+
+                const userDocSnap = await getDoc(userDocRef)
+                const userData = userDocSnap.data()
+                const newLinks = userData.links || []
+                const newLinkIndex = newLinks.findIndex(link => link.id === id)
+
+                setFields({
+                  id: updatedUserLinksArray[newLinkIndex].id,
+                  title: updatedUserLinksArray[newLinkIndex].title,
+                  url: updatedUserLinksArray[newLinkIndex].url,
+                })
+                
+                handleLinkUpdate(updatedUserLinksArray[newLinkIndex])
+
+                toast.success('Link updated successfully!', {
+                  position: 'bottom-right',
+                })
+
+                setFillFiledMessage('link updated successfully!')
+
+                handleClose()
+
+                return
+              } else {
+                setFillFiledMessage('Link not found.')
+                setLoading(false)
+                return
+              }
             }
+
             const updatedLinks = [...links]
 
             updatedLinks[linkIndex] = {
@@ -160,4 +193,4 @@ const UserBioForm = ({
   )
 }
 
-export default UserBioForm
+export default UserLinksForm
