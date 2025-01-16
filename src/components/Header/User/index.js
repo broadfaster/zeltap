@@ -27,8 +27,8 @@ const User = ({ className, user }) => {
       icon: 'exit',
       callback: () => {
         setCosmicUser({})
-        push('/')
         removeToken()
+        push('/')
       },
     },
   ]

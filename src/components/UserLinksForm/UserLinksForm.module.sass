@@ -76,3 +76,43 @@
     
 .label
     color: $blue
+    
+.field
+  position: relative
+  margin-bottom: 1.5rem
+
+.inputWrapper
+    position: relative
+    display: flex
+    align-items: center
+
+.icon
+  position: absolute
+  right: 1rem
+  color: $blue
+  cursor: pointer
+  display: flex
+  align-items: center
+  justify-content: center
+  height: 100%
+
+.test
+  margin-left: auto
+  text-align: right
+  padding: 6px 12px
+  border-radius: 14px
+  background: none
+  color: blue
+  transition: all 0.2s
+
+  &:hover
+    color: $neutrals3
+    +dark
+      color: $neutrals6
+
+  &.active
+    background: $neutrals3
+    color: $neutrals8
+    +dark
+      background: $neutrals8
+      color: $neutrals2

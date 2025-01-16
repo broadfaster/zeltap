@@ -40,14 +40,14 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
   const [addLinksData, setAddLinksData] = useState(allLinks || [])
   const [visibleAddLinksModal, setVisibleAddLinksModal] = useState(false)
 
-  const [visibleAuthModal, setVisibleAuthModal] = useState(false)
+  const [visibleBioModal, setVisibleBioModal] = useState(false)
   const [visibleLinkModal, setVisibleLinkModal] = useState(false)
   const [linkData, setLinkData] = useState({
     id: '',
     title: '',
     url: '',
-    idx: '',
     type: '',
+    idx: '',
   })
 
   // static data
@@ -104,8 +104,8 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
       id: data.id,
       title: data.title,
       url: data.url,
-      idx: index,
       type: data.type,
+      idx: index,
     })
     setVisibleLinkModal(true)
   }
@@ -113,7 +113,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
   const handleBioUpdate = useCallback(
     updatedBio => {
       setEditableBioData(updatedBio)
-      setVisibleAuthModal(false)
+      setVisibleBioModal(false)
     },
     [editableBioData, setEditableBioData]
   )
@@ -160,11 +160,19 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
     [linkData, setLinkData]
   )
 
+  const handleLinkDelete = useCallback(
+    updatedAllLinks => {
+      setAddLinksData([...updatedAllLinks])
+      setVisibleLinkModal(false)
+    },
+    [addLinksData, setAddLinksData]
+  )
+
   return (
     <>
       <LinkWrapper>
         {isUserProfileOwner && (
-          <MainEditBtn onClick={() => setVisibleAuthModal(true)}>
+          <MainEditBtn onClick={() => setVisibleBioModal(true)}>
             <Icon name="pencil" size="18" />
           </MainEditBtn>
         )}
@@ -296,8 +304,24 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
               {links.length > 0 ? (
                 <LinkSection>
                   <h3>{links[0]?.type}</h3>
-                  {links.map(i => {
-                    return (
+                  {links.map((i, index) => {
+                    return isUserProfileOwner ? (
+                      <a
+                        key={i.id}
+                        onClick={e => handleLinksClick(e, i, index)}
+                      >
+                        <LinkBox>
+                          <LinkTitle>
+                            <img
+                              src={i.icon}
+                              style={{ filter: 'var(--img)' }}
+                            />{' '}
+                            {i.title}
+                          </LinkTitle>{' '}
+                          <NewUp />
+                        </LinkBox>
+                      </a>
+                    ) : (
                       <a
                         href={i.url}
                         key={i.id}
@@ -364,13 +388,13 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
           </BottomPart>
         </LinkContainer>
         <Modal
-          visible={visibleAuthModal}
-          onClose={() => setVisibleAuthModal(false)}
+          visible={visibleBioModal}
+          onClose={() => setVisibleBioModal(false)}
         >
           <UserBioForm
             bioData={editableBioData}
             handleBioUpdate={handleBioUpdate}
-            handleClose={() => setVisibleAuthModal(false)}
+            handleClose={() => setVisibleBioModal(false)}
           />
         </Modal>
         <Modal
@@ -380,6 +404,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
           <UserLinksForm
             linkData={linkData}
             handleLinkUpdate={handleLinkUpdate}
+            handleLinkDelete={handleLinkDelete}
             handleClose={() => setVisibleLinkModal(false)}
           />
         </Modal>

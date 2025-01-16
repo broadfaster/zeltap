@@ -1,10 +1,11 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import Loader from '../Loader'
-import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore'
-import { db, auth } from '../../utils/firebase'
+import { runTransaction, doc, getDoc, updateDoc } from 'firebase/firestore'
+import { db } from '../../utils/firebase'
 import { useStateContext } from '../../utils/context/StateContext'
 import toast from 'react-hot-toast'
+import { NewUp } from '../icons'
 
 import styles from './UserLinksForm.module.sass'
 
@@ -14,6 +15,7 @@ const UserLinksForm = ({
   disable,
   linkData,
   handleLinkUpdate,
+  handleLinkDelete,
   postData = false,
 }) => {
   const [fields, setFields] = useState({
@@ -27,6 +29,7 @@ const UserLinksForm = ({
   const { cosmicUser } = useStateContext()
   const [fillFiledMessage, setFillFiledMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
   const inputElement = useRef(null)
 
@@ -83,7 +86,7 @@ const UserLinksForm = ({
                   title: updatedUserLinksArray[newLinkIndex].title,
                   url: updatedUserLinksArray[newLinkIndex].url,
                 })
-                
+
                 handleLinkUpdate(updatedUserLinksArray[newLinkIndex])
 
                 toast.success('Link updated successfully!', {
@@ -126,7 +129,6 @@ const UserLinksForm = ({
             toast.success('Link updated successfully!', {
               position: 'bottom-right',
             })
-
             setFillFiledMessage('link updated successfully!')
             handleClose()
           } else {
@@ -146,6 +148,38 @@ const UserLinksForm = ({
     [cosmicUser.username, fields, linkData.id, handleClose]
   )
 
+  const handleDelete = useCallback(async () => {
+    setDeleteLoading(true)
+    try {
+      const { id } = fields
+      const userDocRef = doc(db, 'users', cosmicUser.username)
+      await runTransaction(db, async transaction => {
+        const userDoc = await transaction.get(userDocRef)
+        if (!userDoc.exists()) {
+          throw new Error('User document not found.')
+        }
+        const userData = userDoc.data()
+        const links = userData.links || []
+        const updatedLinks = links.filter(link => link.id !== id)
+
+        transaction.update(userDocRef, { links: updatedLinks })
+        // Notify the parent
+        handleLinkDelete(updatedLinks) // Send updated array
+      })
+      toast.success('Link deleted successfully!', {
+        position: 'bottom-right',
+      })
+      handleClose()
+    } catch (error) {
+      toast.error('Failed to delete Link. Please try again.', {
+        position: 'bottom-right',
+      })
+      console.error('Delete Error:', error)
+    } finally {
+      setDeleteLoading(false)
+    }
+  }, [cosmicUser.username, fields.id, handleClose])
+
   return (
     <div className={cn(className, styles.transfer)}>
       <div className={cn('h4', styles.title)}>Link</div>
@@ -154,39 +188,68 @@ const UserLinksForm = ({
       <form className={styles.form} action="submit" onSubmit={submitForm}>
         <div className={styles.field}>
           <label className={styles.label}>TITLE</label>
-          <input
-            className={styles.input}
-            type="text"
-            name="title"
-            placeholder="Enter Title"
-            onChange={handleChange}
-            value={fields.title}
-            required
-          />
+          <div className={styles.inputWrapper}>
+            <input
+              className={styles.input}
+              type="text"
+              name="title"
+              placeholder="Enter Title"
+              onChange={handleChange}
+              value={fields.title}
+              required
+            />
+          </div>
         </div>
         <div className={styles.field}>
           <label className={styles.label}>URL</label>
-          <input
-            className={styles.input}
-            type="text"
-            name="url"
-            placeholder="Enter URL"
-            onChange={handleChange}
-            value={fields.url}
-            required
-          />
+          <div className={styles.inputWrapper}>
+            <input
+              className={styles.input}
+              type="text"
+              name="url"
+              placeholder="Enter URL"
+              onChange={handleChange}
+              value={fields.url}
+              required
+            />
+            <a
+              className={styles.icon}
+              href={fields.url}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <NewUp />
+            </a>
+          </div>
         </div>
 
         <div className={styles.btns}>
-          <button
-            type="submit"
-            className={cn('button', styles.button, {
-              [styles.disabled]: loading,
-            })}
-            disabled={loading}
-          >
-            {loading ? <Loader /> : 'Update'}
-          </button>
+          {postData ? (
+            <button
+              type="submit"
+              className={cn('button', styles.button)}
+              disabled={loading}
+            >
+              {loading ? <Loader /> : 'Add'}
+            </button>
+          ) : (
+            <>
+              <button
+                type="submit"
+                className={cn('button', styles.button)}
+                disabled={loading}
+              >
+                {loading ? <Loader /> : 'Update'}
+              </button>
+              <button
+                onClick={deleteLoading ? null : handleDelete}
+                className={cn('button-stroke', styles.button)}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? <Loader /> : 'Delete'}
+              </button>
+            </>
+          )}
         </div>
       </form>
     </div>

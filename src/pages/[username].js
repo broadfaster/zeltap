@@ -19,7 +19,7 @@ const UserProfile = ({ firestoreData }) => {
     storageKey: 'darkMode',
     onChange: null,
   })
-  const theme = darkMode ? darkTheme : lightTheme
+  const theme = darkMode.value ? darkTheme : lightTheme
   const { cosmicUser, setCosmicUser } = useStateContext()
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
