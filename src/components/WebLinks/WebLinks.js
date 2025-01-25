@@ -11,6 +11,7 @@ import CustModal from '../CustModal'
 import UserBioForm from '../UserBioForm'
 import linksDataTemplate from '../../data/linksDataTemplate'
 import AddUserLinksForm from '../AddUserLinksForm'
+import { ClipLoader } from 'react-spinners'
 
 import style from '../AddUserLinksForm/AddUserLinksForm.module.sass'
 import UserLinksForm from '../UserLinksForm'
@@ -39,7 +40,7 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
 
   const [addLinksData, setAddLinksData] = useState(allLinks || [])
   const [visibleAddLinksModal, setVisibleAddLinksModal] = useState(false)
-
+  const [linksLoading, setLinksLoading] = useState(false)
   const [visibleBioModal, setVisibleBioModal] = useState(false)
   const [visibleLinkModal, setVisibleLinkModal] = useState(false)
   const [linkData, setLinkData] = useState({
@@ -120,7 +121,11 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
 
   const handleAllLinksUpdate = useCallback(
     updatedAllLinks => {
-      setAddLinksData([...allLinks, updatedAllLinks])
+      setLinksLoading(true)
+      setAddLinksData([...addLinksData, updatedAllLinks])
+      setTimeout(() => {
+        setLinksLoading(false)
+      }, 1500)
       setVisibleAddLinksModal(false)
     },
     [addLinksData, setAddLinksData]
@@ -231,152 +236,192 @@ const Links = ({ allLinks, firebaseBioData, isUserProfileOwner }) => {
             {/* End Bio Section */}
 
             {/* Weblinks started */}
-            <WebLinkWrap>
-              {/* Social Icon */}
-              <LinkSection className="social">
-                <div className="iconsonly">
-                  {social.map((i, index) => {
-                    return isUserProfileOwner ? (
-                      <a
-                        key={i.id}
-                        onClick={e => handleLinksClick(e, i, index)}
-                      >
-                        <LinkBox className="socialIcon">
-                          <img src={i.icon} style={{ filter: 'var(--img)' }} />
-                        </LinkBox>
-                      </a>
-                    ) : (
-                      <a
-                        href={i.url}
-                        key={i.id}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <LinkBox className="socialIcon">
-                          <img src={i.icon} style={{ filter: 'var(--img)' }} />
-                        </LinkBox>
-                      </a>
-                    )
-                  })}
-                </div>
-              </LinkSection>
-              {/* Social Icon */}
+            {linksLoading ? (
+              <ClipLoader
+                size={50}
+                color="#36D7B7"
+                loading={linksLoading}
+                cssOverride={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                }}
+              />
+            ) : (
+              <WebLinkWrap>
+                {/* Social Icon */}
+                <LinkSection className="social">
+                  <div className="iconsonly">
+                    {social.map((i, index) => {
+                      return isUserProfileOwner ? (
+                        <a
+                          key={i.id}
+                          onClick={e => handleLinksClick(e, i, index)}
+                        >
+                          <LinkBox className="socialIcon">
+                            <img
+                              src={i.icon}
+                              style={{ filter: 'var(--img)' }}
+                            />
+                          </LinkBox>
+                        </a>
+                      ) : (
+                        <a
+                          href={i.url}
+                          key={i.id}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <LinkBox className="socialIcon">
+                            <img
+                              src={i.icon}
+                              style={{ filter: 'var(--img)' }}
+                            />
+                          </LinkBox>
+                        </a>
+                      )
+                    })}
+                  </div>
+                </LinkSection>
+                {/* Social Icon */}
 
-              {/* Cards Section */}
-              {cards.length > 0 ? (
-                <LinkSection>
-                  <h3>{cards[0]?.type}</h3>
-                  {/* BioData.js > newProduct == true */}
-                  {/* New Section will render once newProduct == true */}
-                  {newProduct ? (
-                    <NewSection>
-                      <a href={newProductUrl} target="_blank" rel="noreferrer">
-                        <img src={'/newproduct.png'} className="newproduct" />
-                      </a>
-                    </NewSection>
-                  ) : (
-                    ''
-                  )}
-                  {/* End Biodata.js, You can move this section anywhere */}
-                  {cards.map(i => {
-                    return (
-                      <a
-                        href={i.url}
-                        key={i.id}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <LinkBox>
-                          <LinkTitle>
-                            <img src={i.icon} /> {i.title}
-                          </LinkTitle>{' '}
-                          <NewUp />
-                        </LinkBox>
-                      </a>
-                    )
-                  })}
-                </LinkSection>
-              ) : (
-                ''
-              )}
-              {/* End Other Section */}
-              {/* Links Section */}
-              {links.length > 0 ? (
-                <LinkSection>
-                  <h3>{links[0]?.type}</h3>
-                  {links.map((i, index) => {
-                    return isUserProfileOwner ? (
-                      <a
-                        key={i.id}
-                        onClick={e => handleLinksClick(e, i, index)}
-                      >
-                        <LinkBox>
-                          <LinkTitle>
-                            <img
-                              src={i.icon}
-                              style={{ filter: 'var(--img)' }}
-                            />{' '}
-                            {i.title}
-                          </LinkTitle>{' '}
-                          <NewUp />
-                        </LinkBox>
-                      </a>
+                {/* Cards Section */}
+                {cards.length > 0 ? (
+                  <LinkSection>
+                    <h3>{cards[0]?.type}</h3>
+                    {/* BioData.js > newProduct == true */}
+                    {/* New Section will render once newProduct == true */}
+                    {newProduct ? (
+                      <NewSection>
+                        <a
+                          href={newProductUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <img src={'/newproduct.png'} className="newproduct" />
+                        </a>
+                      </NewSection>
                     ) : (
-                      <a
-                        href={i.url}
-                        key={i.id}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <LinkBox>
-                          <LinkTitle>
-                            <img
-                              src={i.icon}
-                              style={{ filter: 'var(--img)' }}
-                            />{' '}
-                            {i.title}
-                          </LinkTitle>{' '}
-                          <NewUp />
-                        </LinkBox>
-                      </a>
-                    )
-                  })}
-                </LinkSection>
-              ) : (
-                ''
-              )}
-              {/* End Links Section */}
-              {/* NFT Section */}
-              {nfts.length > 0 ? (
-                <LinkSection>
-                  <h3>{nfts?.type}s</h3>
-                  {nfts.map(i => {
-                    return (
-                      <a
-                        href={i.url}
-                        key={i.id}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <LinkBox>
-                          <LinkTitle>
-                            <img
-                              src={i.icon}
-                              style={{ filter: 'var(--img)' }}
-                            />{' '}
-                            {i.title}
-                          </LinkTitle>{' '}
-                          <NewUp />
-                        </LinkBox>
-                      </a>
-                    )
-                  })}
-                </LinkSection>
-              ) : (
-                ''
-              )}
-              {/* End NFT Section */}
-            </WebLinkWrap>
+                      ''
+                    )}
+                    {/* End Biodata.js, You can move this section anywhere */}
+                    {cards.map(i => {
+                      return (
+                        <a
+                          href={i.url}
+                          key={i.id}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <LinkBox>
+                            <LinkTitle>
+                              <img src={i.icon} /> {i.title}
+                            </LinkTitle>{' '}
+                            <NewUp />
+                          </LinkBox>
+                        </a>
+                      )
+                    })}
+                  </LinkSection>
+                ) : (
+                  ''
+                )}
+                {/* End Other Section */}
+                {/* Links Section */}
+                {links.length > 0 ? (
+                  <LinkSection>
+                    <h3>{links[0]?.type}</h3>
+                    {links.map((i, index) => {
+                      return isUserProfileOwner ? (
+                        <a
+                          key={i.id}
+                          onClick={e => handleLinksClick(e, i, index)}
+                        >
+                          <LinkBox>
+                            <LinkTitle>
+                              <img
+                                src={i.icon}
+                                style={{ filter: 'var(--img)' }}
+                              />{' '}
+                              {i.title}
+                            </LinkTitle>{' '}
+                            <NewUp />
+                          </LinkBox>
+                        </a>
+                      ) : (
+                        <a
+                          href={i.url}
+                          key={i.id}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <LinkBox>
+                            <LinkTitle>
+                              <img
+                                src={i.icon}
+                                style={{ filter: 'var(--img)' }}
+                              />{' '}
+                              {i.title}
+                            </LinkTitle>{' '}
+                            <NewUp />
+                          </LinkBox>
+                        </a>
+                      )
+                    })}
+                  </LinkSection>
+                ) : (
+                  ''
+                )}
+                {/* End Links Section */}
+                {/* NFT Section */}
+                {nfts.length > 0 ? (
+                  <LinkSection>
+                    <h3>{nfts[0]?.type}s</h3>
+                    {nfts.map((i, index) => {
+                      return isUserProfileOwner ? (
+                        <a
+                          key={i.id}
+                          onClick={e => handleLinksClick(e, i, index)}
+                        >
+                          <LinkBox>
+                            <LinkTitle>
+                              <img
+                                src={i.icon}
+                                style={{ filter: 'var(--img)' }}
+                              />{' '}
+                              {i.title}
+                            </LinkTitle>{' '}
+                            <NewUp />
+                          </LinkBox>
+                        </a>
+                      ) : (
+                        <a
+                          href={i.url}
+                          key={i.id}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <LinkBox>
+                            <LinkTitle>
+                              <img
+                                src={i.icon}
+                                style={{ filter: 'var(--img)' }}
+                              />{' '}
+                              {i.title}
+                            </LinkTitle>{' '}
+                            <NewUp />
+                          </LinkBox>
+                        </a>
+                      )
+                    })}
+                  </LinkSection>
+                ) : (
+                  ''
+                )}
+                {/* End NFT Section */}
+              </WebLinkWrap>
+            )}
             {/* End Weblinks */}
           </TopPart>
           <BottomPart>
