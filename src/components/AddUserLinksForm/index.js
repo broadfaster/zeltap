@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import cn from 'classnames'
-import { useStateContext } from '../../utils/context/StateContext'
 import styled from 'styled-components'
+import { v4 as uuidv4 } from 'uuid';
 
 import styles from './AddUserLinksForm.module.sass'
 import Modal from '../Modal'
@@ -68,7 +68,7 @@ const AddUserLinksForm = ({
                   onClick={() => {
                     setLinks({
                       ...groupedLinks[type][index],
-                      id: `${Date.now().toString(36) + Math.random().toString(36).slice(2, 7)}`,
+                      id: `${uuidv4()}`,
                       title: data.title,
                       url: '',
                     })

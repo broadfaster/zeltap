@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import Loader from '../Loader'
 import { doc, updateDoc } from 'firebase/firestore'
-import { db, auth } from '../../utils/firebase'
+import { getActiveProfileCollectionRef } from '../../utils/firebase'
 import { useStateContext } from '../../utils/context/StateContext'
 import toast from 'react-hot-toast'
 
@@ -51,9 +51,9 @@ const UserBioForm = ({
 
       if (name && description && subdesc) {
         try {
-          const userDocRef = doc(db, 'users', cosmicUser.username)
+          const userDocRef = await getActiveProfileCollectionRef(cosmicUser.username)
 
-          await updateDoc(userDocRef, {
+          await updateDoc(userDocRef.docs[0].ref, {
             'bio.name': fields.name,
             'bio.description': fields.description,
             'bio.subdesc': fields.subdesc,

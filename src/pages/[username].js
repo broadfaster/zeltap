@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/router'
 import WebLinks from '../components/WebLinks/WebLinks'
 import UserLayout from '../components/UserLayout/UserLayout'
@@ -8,8 +8,8 @@ import useDarkMode from 'use-dark-mode'
 import GlobalStyle from '../styles/pages/GlobalStyle'
 import allLinks from '../data/LinksData'
 import bioDataTemplate from '../data/bioDataTemplate'
-import { doc, getDoc, Timestamp } from 'firebase/firestore'
-import { db } from '../utils/firebase'
+import { Timestamp } from 'firebase/firestore'
+import { getActiveProfileCollectionRef } from '../utils/firebase'
 import { useStateContext } from '../utils/context/StateContext'
 import { getToken } from '../utils/token'
 import { ClipLoader } from 'react-spinners'
@@ -83,7 +83,9 @@ const UserProfile = ({ firestoreData }) => {
   }
 
   const isUserProfileOwner =
-    isLoggedIn && currentUserFromParam === currentUserName
+    isLoggedIn &&
+    String(currentUserFromParam).toLowerCase() ===
+      String(currentUserName).toLowerCase()
 
   return (
     <ThemeProvider theme={theme}>
@@ -118,10 +120,9 @@ export default UserProfile
 export async function getServerSideProps(context) {
   try {
     const { username } = context.params
-    const userDocRef = doc(db, 'users', String(username).toLowerCase())
-    const userDocSnap = await getDoc(userDocRef)
+    const userCollectionRef = await getActiveProfileCollectionRef(username)
 
-    if (!userDocSnap.exists()) {
+    if (userCollectionRef === null) {
       return {
         props: {
           firestoreData: false,
@@ -129,7 +130,7 @@ export async function getServerSideProps(context) {
       }
     }
 
-    const userData = userDocSnap.data()
+    const userData = userCollectionRef.docs[0].data()
 
     if (userData.createdAt instanceof Timestamp) {
       userData.createdAt = userData.createdAt.toDate().toString()

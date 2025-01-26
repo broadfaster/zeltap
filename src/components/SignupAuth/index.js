@@ -4,11 +4,12 @@ import { useRouter } from 'next/router'
 import AppLink from '../AppLink'
 import Loader from '../Loader'
 import registerFields from '../../utils/constants/registerFields'
-import { db, auth } from '../../utils/firebase'
+import { db, auth, initSchemaOnSignUp } from '../../utils/firebase'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { useStateContext } from '../../utils/context/StateContext'
 import { setToken } from '../../utils/token'
+import { v4 as uuidv4 } from 'uuid'
 
 import styles from './SignupAuth.module.sass'
 
@@ -19,8 +20,8 @@ const SignupAuth = ({
   disable,
   setAuthMode,
 }) => {
-  const { cosmicUser,setCosmicUser } = useStateContext()
- const router = useRouter()
+  const { cosmicUser, setCosmicUser } = useStateContext()
+  const router = useRouter()
   const { push } = router
 
   const [{ username, email, password }, setFields] = useState(
@@ -92,15 +93,9 @@ const SignupAuth = ({
             password
           )
           const user = userCredential.user
+          const profile = uuidv4()
 
-          // Add user data to Firestore using username as the document ID
-          const userDocRef = doc(db, 'users', username)
-          await setDoc(userDocRef, {
-            username,
-            email,
-            createdAt: new Date(),
-            uid: user.uid, // Optional: Store Firebase UID for reference
-          })
+          await initSchemaOnSignUp(username, email, profile, user)
 
           if (auth.currentUser) {
             setCosmicUser({
@@ -120,7 +115,7 @@ const SignupAuth = ({
           }
           // Redirect to user profile page
           // TODO : handle 404 part
-          !isItemsPage ? push(`/${username}`): push(`/`)
+          !isItemsPage ? push(`/${username}`) : push(`/`)
         } catch (error) {
           if (error.code === 'auth/email-already-in-use') {
             // If email is already in use, redirect to login page

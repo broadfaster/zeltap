@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react'
 import cn from 'classnames'
 import Loader from '../Loader'
 import { runTransaction, doc, getDoc, updateDoc } from 'firebase/firestore'
-import { db } from '../../utils/firebase'
+import { db, getActiveProfileCollectionRef } from '../../utils/firebase'
 import { useStateContext } from '../../utils/context/StateContext'
 import toast from 'react-hot-toast'
 import { NewUp } from '../icons'
@@ -62,7 +62,10 @@ const UserLinksForm = ({
 
       if (title && url) {
         try {
-          const userDocRef = doc(db, 'users', cosmicUser.username)
+          const docRef = await getActiveProfileCollectionRef(
+            cosmicUser.username
+          )
+          const userDocRef = docRef.docs[0].ref
           // Retrieve the current document
           const userDocSnap = await getDoc(userDocRef)
 
@@ -152,7 +155,10 @@ const UserLinksForm = ({
     setDeleteLoading(true)
     try {
       const { id } = fields
-      const userDocRef = doc(db, 'users', cosmicUser.username)
+      const docRef = await getActiveProfileCollectionRef(
+        cosmicUser.username
+      )
+      const userDocRef = docRef.docs[0].ref
       await runTransaction(db, async transaction => {
         const userDoc = await transaction.get(userDocRef)
         if (!userDoc.exists()) {

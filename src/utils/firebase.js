@@ -1,8 +1,22 @@
 import { initializeApp } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
-import { ref, getDownloadURL, getStorage, uploadBytesResumable } from 'firebase/storage'
-import { doc } from 'firebase/firestore'
+import {
+  ref,
+  getDownloadURL,
+  getStorage,
+  uploadBytesResumable,
+} from 'firebase/storage'
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs,
+  Timestamp,
+  getFirestore,
+  setDoc,
+  addDoc,
+} from 'firebase/firestore'
+
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_ZELTAP_FIREBASE_API_KEY,
@@ -18,6 +32,50 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 const storage = getStorage(app)
+const parentCollection = 'users'
+const userUrl = 'https://www.zeltap.com/'
+
+const initSchemaOnSignUp = async (username, email, profileId, user) => {
+  const userDocRef = doc(db, parentCollection, username)
+
+  // Set initial data
+  await setDoc(userDocRef, {
+    activeProfile: profileId,
+    createdAt: new Date(),
+    email,
+  })
+
+  // Create subcollection
+  createSubcollection(username, profileId, user.uid)
+}
+
+async function createSubcollection(username, profileId, userUid) {
+  const postsCollectionRef = collection(
+    db,
+    parentCollection,
+    username,
+    profileId
+  )
+
+  const newPostRef = await addDoc(postsCollectionRef, {
+    bio: {
+      name: username,
+      username: username,
+      url: `${userUrl + username}`,
+      avatarImg: '',
+      nftAvatar: false,
+      description: 'Please Add Description',
+      descShow: true,
+      subdesc: 'Please Add Sub Description',
+      subdescShow: true,
+      newProductUrl: `${userUrl + 'search'}`,
+      newProduct: false,
+    },
+    createdAt: new Date(),
+    links: [],
+    uid: userUid,
+  })
+}
 
 const uploadImageForUser = async (file, username) => {
   // Ensure the user is authenticated
@@ -68,4 +126,33 @@ const storeImageURLForUser = async (username, downloadURL) => {
   }
 }
 
-export { auth, db, storage, uploadImageForUser }
+const getActiveProfileCollectionRef = async username => {
+  const userDocRef = doc(db, 'users', String(username).toLowerCase())
+  const userDocSnap = await getDoc(userDocRef)
+
+  if (!userDocSnap.exists()) {
+    return null
+  }
+
+  const activeProfile = userDocSnap.data()?.activeProfile
+  if (!activeProfile) {
+    return null
+  }
+
+  const profileCollectionRef = collection(
+    userDocRef,
+    userDocSnap.data()?.activeProfile
+  )
+  const activeProfileCollectionSnap = await getDocs(profileCollectionRef)
+
+  return activeProfileCollectionSnap || null
+}
+
+export {
+  auth,
+  db,
+  storage,
+  initSchemaOnSignUp,
+  uploadImageForUser,
+  getActiveProfileCollectionRef,
+}

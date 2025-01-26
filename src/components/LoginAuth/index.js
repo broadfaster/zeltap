@@ -69,7 +69,6 @@ const LoginAuth = ({
           const querySnapshot = await getDocs(q)
 
           if (!querySnapshot.empty) {
-            const userData = querySnapshot.docs[0].data()
             const username = querySnapshot.docs[0].id // Document ID is the username
 
             if (auth.currentUser) {
