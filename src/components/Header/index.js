@@ -72,6 +72,13 @@ const Headers = ({ navigation }) => {
                   {x.title}
                 </AppLink>
               ))}
+              <h2
+                aria-label="navigation"
+                className={styles.link}
+                onClick={() => setVisibleAuthModal(true)}
+              >
+                Login
+              </h2>
             </nav>
           </div>
           {/* Not Required to have in header mentioned in footer already */}
